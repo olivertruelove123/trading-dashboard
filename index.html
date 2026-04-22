@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Oliver's Setups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050709;--surface:#090c14;--surface2:#0d1019;--border:#161d2c;--border2:#1e2840;--accent-green:#00e5a0;--accent-red:#ff4d6d;--accent-yellow:#ffbe0b;--accent-blue:#4895ef;--text:#d8e0ef;--text2:#6b7a94;--text3:#38455a;--glow-green:rgba(0,229,160,0.12);--glow-red:rgba(255,77,109,0.12);--glow-yellow:rgba(255,190,11,0.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{background:var(--bg);background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(72,149,239,.05) 0%,transparent 70%);color:var(--text);font-family:'Barlow',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.3}
+#hdr{position:fixed;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(5,7,9,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);z-index:100;animation:fadeIn .3s ease forwards}
+.hdr-left{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--accent-green);letter-spacing:.15em}
+.hdr-center{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2)}
+.hdr-right{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-green);animation:pulse 2s ease-in-out infinite}
+.live-badge{font-size:10px;font-weight:600;color:var(--accent-green);letter-spacing:.1em}
+.session-pill{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.08em;border:1px solid currentColor}
+.sp-open{color:var(--accent-green);background:rgba(0,229,160,.08)}
+.sp-pre{color:var(--accent-yellow);background:rgba(255,190,11,.08)}
+.sp-ah{color:var(--accent-blue);background:rgba(72,149,239,.08)}
+.sp-closed{color:var(--text3);background:rgba(56,69,90,.08);border-color:var(--text3)}
+.page-scroll{margin-top:48px;position:relative;z-index:1}
+.date-strip{display:flex;overflow-x:auto;padding:10px 16px 0;gap:20px;border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.date-strip::-webkit-scrollbar{display:none}
+.date-tab{padding:6px 2px 8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;user-select:none}
+.date-tab.active{color:var(--text);border-bottom-color:var(--accent-green)}
+.date-dot{width:4px;height:4px;border-radius:50%;background:var(--accent-green);opacity:.75;flex-shrink:0}
+.main-nav{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.main-nav::-webkit-scrollbar{display:none}
+.nav-tab{padding:12px 13px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.13em;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;min-height:44px;user-select:none}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--accent-green)}
+.panel{padding:16px;animation:fadeIn .2s ease forwards}
+.panel.hidden{display:none}
+.summary-bar{display:flex;overflow-x:auto;gap:8px;padding-bottom:14px;margin-bottom:16px;scrollbar-width:none;-webkit-overflow-scrolling:touch;animation:slideUp .3s ease .15s both}
+.summary-bar::-webkit-scrollbar{display:none}
+.stat-pill{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;text-align:center;min-width:68px}
+.stat-pill .val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;line-height:1;display:block}
+.stat-pill .lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);display:block;margin-top:4px}
+.val-g{color:var(--accent-green)}.val-r{color:var(--accent-red)}.val-y{color:var(--accent-yellow)}.val-w{color:var(--text)}
+.cards-list{display:flex;flex-direction:column;gap:10px}
+.ticker-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;border-left:3px solid transparent;opacity:0;transform:translateY(20px);animation:cardIn .4s ease forwards;cursor:pointer;transition:box-shadow .3s ease,border-color .3s ease}
+.ticker-card.v-strong{border-left-color:var(--accent-green);box-shadow:-4px 0 20px var(--glow-green)}
+.ticker-card.v-weak{border-left-color:var(--accent-yellow);box-shadow:-4px 0 20px var(--glow-yellow)}
+.ticker-card.v-avoid{border-left-color:var(--accent-red);box-shadow:-4px 0 20px var(--glow-red)}
+@keyframes glowG{0%,100%{box-shadow:-4px 0 22px rgba(0,229,160,.18),0 2px 24px rgba(0,229,160,.08)}50%{box-shadow:-4px 0 36px rgba(0,229,160,.42),0 2px 30px rgba(0,229,160,.16)}}
+@keyframes glowR{0%,100%{box-shadow:-4px 0 22px rgba(255,77,109,.18),0 2px 24px rgba(255,77,109,.08)}50%{box-shadow:-4px 0 36px rgba(255,77,109,.42),0 2px 30px rgba(255,77,109,.16)}}
+.ticker-card[data-dir="LONG"]:hover{animation:glowG 2.5s ease-in-out infinite!important}
+.ticker-card[data-dir="SHORT"]:hover{animation:glowR 2.5s ease-in-out infinite!important}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
+.card-ticker{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;line-height:1;min-width:80px}
+.t-strong{color:var(--accent-green)}.t-weak{color:var(--accent-yellow)}.t-avoid{color:var(--accent-red)}
+.card-badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;flex:1;padding:0 8px;align-items:center}
+.badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;letter-spacing:.06em}
+.b-strong{background:rgba(0,229,160,.12);color:var(--accent-green);border:1px solid rgba(0,229,160,.25)}
+.b-weak{background:rgba(255,190,11,.12);color:var(--accent-yellow);border:1px solid rgba(255,190,11,.25)}
+.b-avoid{background:rgba(255,77,109,.12);color:var(--accent-red);border:1px solid rgba(255,77,109,.25)}
+.b-long{background:rgba(0,229,160,.06);color:var(--accent-green);border:1px solid rgba(0,229,160,.18)}
+.b-short{background:rgba(255,77,109,.06);color:var(--accent-red);border:1px solid rgba(255,77,109,.18)}
+.b-rsi-bull{background:rgba(0,229,160,.16);color:var(--accent-green);border:1px solid rgba(0,229,160,.32);font-size:8px;padding:2px 5px}
+.b-rsi-bear{background:rgba(255,77,109,.16);color:var(--accent-red);border:1px solid rgba(255,77,109,.32);font-size:8px;padding:2px 5px}
+.card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.conviction{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)}
+.chevron{color:var(--text3);font-size:14px;transition:transform .3s ease;display:inline-block;line-height:1}
+.ticker-card.open .chevron{transform:rotate(180deg)}
+.price-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:0 14px 10px;gap:4px}
+.price-cell{text-align:center}
+.p-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);display:block;margin-bottom:4px}
+.p-value{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;line-height:1;display:block}
+.p-entry{color:var(--text)}.p-stop{color:var(--accent-red)}.p-target{color:var(--accent-green)}
+.live-strip{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;min-height:44px}
+.live-price{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--text)}
+.price-delta{font-family:'JetBrains Mono',monospace;font-size:11px;display:flex;align-items:center;gap:3px}
+.d-up{color:var(--accent-green)}.d-down{color:var(--accent-red)}
+.strip-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.days-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
+.status-badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:3px 7px;border-radius:4px;letter-spacing:.04em}
+.s-open{background:rgba(72,149,239,.12);color:var(--accent-blue);border:1px solid rgba(72,149,239,.25)}
+.s-inplay{background:rgba(255,190,11,.12);color:var(--accent-yellow);border:1px solid rgba(255,190,11,.25)}
+.s-hit{background:rgba(0,229,160,.12);color:var(--accent-green);border:1px solid rgba(0,229,160,.25);animation:shimmer 3s ease infinite}
+.s-stopped{background:rgba(255,77,109,.12);color:var(--accent-red);border:1px solid rgba(255,77,109,.25)}
+.s-expired{background:rgba(74,85,104,.2);color:var(--text3);border:1px solid var(--border)}
+.prog-wrap{padding:8px 14px 6px}
+.prog-track{position:relative;height:6px;background:var(--border);border-radius:3px}
+.prog-fill{position:absolute;left:0;top:0;height:100%;border-radius:3px;width:0;transition:width .6s ease .4s}
+.pf-green{background:linear-gradient(90deg,rgba(0,229,160,.2),var(--accent-green))}
+.pf-red{background:linear-gradient(90deg,rgba(255,77,109,.2),var(--accent-red))}
+.prog-entry{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--text3);border-radius:1px;transform:translateX(-50%)}
+.prog-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;border:2px solid var(--bg);transition:left .6s ease .4s}
+.dot-g{background:var(--accent-green);box-shadow:0 0 8px rgba(0,229,160,.6)}
+.dot-r{background:var(--accent-red);box-shadow:0 0 8px rgba(255,77,109,.6)}
+.prog-price-row{position:relative;height:18px;margin-top:4px}
+.prog-price-lbl{position:absolute;transform:translateX(-50%);top:0;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;color:var(--text);background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;white-space:nowrap;pointer-events:none;transition:left .6s ease .4s}
+.prog-labels{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);margin-top:2px;padding-bottom:2px}
+.pnl-row{padding:4px 14px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)}
+.pnl-v{font-weight:600}.pnl-g{color:var(--accent-green)}.pnl-r{color:var(--accent-red)}
+.metrics-wrap{max-height:0;overflow:hidden;transition:max-height .35s ease-out;border-top:1px solid transparent}
+.ticker-card.open .metrics-wrap{max-height:900px;border-top-color:var(--border)}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px 14px 6px}
+.metric-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px}
+.chip-key{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);display:block;margin-bottom:4px}
+.chip-val{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;display:block;line-height:1.3}
+.cv-bull{color:var(--accent-green)}.cv-bear{color:var(--accent-red)}.cv-neut{color:var(--text2)}.cv-warn{color:var(--accent-yellow)}
+.rr-wrap{padding:2px 14px 8px;display:flex;align-items:center;gap:12px}
+.rr-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);white-space:nowrap}
+.rr-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--accent-green);min-width:36px}
+.rr-track{flex:1;height:4px;background:var(--border);border-radius:2px;max-width:120px}
+.rr-fill{height:100%;background:linear-gradient(90deg,var(--accent-red),var(--accent-green));border-radius:2px;transition:width .6s ease .6s}
+.copy-btn{display:block;margin:4px 14px 12px;width:calc(100% - 28px);background:transparent;border:1px solid var(--border2);color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:7px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em;transition:color .15s,border-color .15s,background .15s;text-align:center}
+.copy-btn:hover{border-color:var(--accent-blue);color:var(--accent-blue);background:rgba(72,149,239,.06)}
+.copy-btn.copied{border-color:var(--accent-green)!important;color:var(--accent-green)!important;background:rgba(0,229,160,.06)!important}
+.perf-section{margin-bottom:20px}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.12em;color:var(--text2);text-transform:uppercase;margin-bottom:10px}
+.headline-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.hl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.hl-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34px;line-height:1;display:block}
+.hl-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);display:block;margin-top:6px}
+.source-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.src-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.src-row:last-child{border-bottom:none}
+.src-name{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;min-width:110px;color:var(--text)}
+.src-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);flex:1}
+.src-bar-wrap{width:70px;height:3px;background:var(--border);border-radius:2px}
+.src-bar-fill{height:100%;border-radius:2px}
+.src-wr{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;min-width:34px;text-align:right}
+.bw-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.bw-card{border-radius:12px;padding:14px;border:1px solid}
+.bw-best{background:var(--glow-green);border-color:rgba(0,229,160,.25)}
+.bw-worst{background:var(--glow-red);border-color:rgba(255,77,109,.25)}
+.bw-ticker{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;display:block}
+.bw-pnl{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;display:block;margin-top:4px}
+.bw-detail{font-size:10px;color:var(--text2);display:block;margin-top:4px}
+.sa-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px}
+.sa-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:52px;color:var(--accent-green);display:block;line-height:1}
+.sa-sub{font-size:11px;color:var(--text2);display:block;margin-top:8px}
+.trades-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto}
+table.at{width:100%;border-collapse:collapse;font-size:11px}
+table.at th{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+table.at td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;white-space:nowrap;vertical-align:middle}
+table.at tr:last-child td{border-bottom:none}
+table.at tbody tr:hover{background:var(--surface2);cursor:pointer}
+.streak-pill{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px;letter-spacing:.06em;display:inline-block}
+.streak-win{background:rgba(0,229,160,.12);color:var(--accent-green);border:1px solid rgba(0,229,160,.25)}
+.streak-loss{background:rgba(255,77,109,.12);color:var(--accent-red);border:1px solid rgba(255,77,109,.25)}
+.streak-none{background:rgba(74,85,104,.15);color:var(--text3);border:1px solid var(--border)}
+.sig-filter{display:flex;gap:8px;margin-bottom:12px}
+.sfbtn{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;min-height:36px}
+.sfbtn.sf-all{border-color:var(--accent-blue);color:var(--accent-blue);background:rgba(72,149,239,.08)}
+.sfbtn.sf-buy{border-color:var(--accent-green);color:var(--accent-green);background:rgba(0,229,160,.08)}
+.sfbtn.sf-sell{border-color:var(--accent-red);color:var(--accent-red);background:rgba(255,77,109,.08)}
+.sig-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto;margin-bottom:12px}
+table.st{width:100%;border-collapse:collapse}
+table.st th{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border);text-align:left}
+table.st td{padding:11px 14px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
+table.st tr:last-child td{border-bottom:none}
+.sc-buy{color:var(--accent-green)}.sc-sell{color:var(--accent-red)}.sc-watch{color:var(--accent-yellow)}
+.scan-note{font-size:10px;color:var(--text3);padding:6px 0;font-family:'JetBrains Mono',monospace}
+.rsi-empty{padding:36px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);line-height:2.2}
+.rsi-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);padding:0 0 12px;display:flex;gap:14px;flex-wrap:wrap}
+.rsi-meta b{color:var(--text2);font-weight:600}
+.week-hdr{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.week-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--text);display:block;margin-bottom:12px}
+.week-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ws .ws-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:var(--accent-green);display:block}
+.ws .ws-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);display:block;margin-top:2px}
+.day-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+.day-date{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text2);min-width:65px;line-height:1.4;white-space:pre-line}
+.day-tickers{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);margin-bottom:5px;line-height:1.6}
+.day-badges{display:flex;gap:4px;flex-wrap:wrap}
+.week-best{background:var(--glow-green);border:1px solid rgba(0,229,160,.25);border-radius:12px;padding:16px;margin-bottom:16px}
+.wb-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.12em;color:var(--accent-green);text-transform:uppercase;display:block;margin-bottom:6px}
+.wb-ticker{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34px;color:var(--accent-green);display:block}
+.wb-pnl{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--accent-green);display:block;margin-top:4px}
+.wb-detail{font-size:11px;color:var(--text2);display:block;margin-top:4px}
+.pattern-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.pt-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;color:var(--text2);letter-spacing:.08em;display:block;margin-bottom:10px;text-transform:uppercase}
+.pt-item{font-size:12px;color:var(--text2);padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pt-item:last-child{border-bottom:none}
+.pt-item .pt-val{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;flex-shrink:0}
+.ez-section-hdr{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);padding:4px 0 10px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.ez-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;margin-bottom:12px;border-left:3px solid transparent;transition:box-shadow .25s ease}
+.ez-card.dir-long{border-left-color:var(--accent-green);box-shadow:-4px 0 18px var(--glow-green)}
+.ez-card.dir-short{border-left-color:var(--accent-red);box-shadow:-4px 0 18px var(--glow-red)}
+.ez-card.dir-long:hover{box-shadow:-4px 0 30px rgba(0,229,160,.35),0 0 18px rgba(0,229,160,.1)}
+.ez-card.dir-short:hover{box-shadow:-4px 0 30px rgba(255,77,109,.35),0 0 18px rgba(255,77,109,.1)}
+.ez-card-top{display:flex;align-items:center;gap:10px;padding:13px 14px 0}
+.ez-ticker-lg{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1;flex-shrink:0}
+.ez-ticker-lg.long{color:var(--accent-green)}.ez-ticker-lg.short{color:var(--accent-red)}
+.ez-top-mid{display:flex;flex-direction:column;gap:4px;flex:1}
+.ez-top-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.ez-date-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3)}
+.ez-conv-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);font-weight:600}
+.ez-card-chevron{color:var(--text3);font-size:13px;transition:transform .3s ease;flex-shrink:0;margin-left:4px}
+.ez-card.open .ez-card-chevron{transform:rotate(180deg)}
+.ez-card-levels{display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 14px 6px;gap:4px}
+.ez-lvl{text-align:center}
+.ez-lvl-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);display:block;margin-bottom:3px}
+.ez-lvl-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;display:block;line-height:1}
+.lv-entry{color:var(--text)}.lv-stop{color:var(--accent-red)}.lv-target{color:var(--accent-green)}
+.ez-conv-bar-wrap{padding:4px 14px 0}
+.ez-conv-bar{height:6px;border-radius:3px;background:var(--border);display:flex;overflow:hidden}
+.ez-conv-seg-bull{background:rgba(0,229,160,.75)}
+.ez-conv-seg-neut{background:var(--border2)}
+.ez-conv-seg-bear{background:rgba(255,77,109,.75)}
+.ez-conv-legend{display:flex;justify-content:space-between;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:8px}
+.ez-card-footer{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 12px;gap:8px;flex-wrap:wrap}
+.ez-earnings{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3)}
+.ez-price-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2)}
+.ez-expand{max-height:0;overflow:hidden;transition:max-height .4s ease-out;border-top:1px solid transparent}
+.ez-card.open .ez-expand{max-height:1600px;border-top-color:var(--border)}
+.signal-tbl-wrap{overflow-x:auto;padding:0 14px 10px}
+.signal-tbl{width:100%;border-collapse:collapse;min-width:300px}
+.signal-tbl th{font-family:'Barlow Condensed',sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:8px 6px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.signal-tbl td{padding:7px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.signal-tbl tr:last-child td{border-bottom:none}
+.signal-tbl tr.row-bull{background:rgba(0,229,160,.03)}
+.signal-tbl tr.row-bear{background:rgba(255,77,109,.03)}
+.signal-tbl tr.row-caut{background:rgba(255,190,11,.03)}
+.sig-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text);line-height:1.2;display:block}
+.sig-src-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);display:block;margin-top:1px}
+.sig-detail-cell{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);max-width:160px;line-height:1.4}
+.ss{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:3px 5px;border-radius:3px;white-space:nowrap;display:inline-block;min-width:36px;text-align:center}
+.ss-bull{color:var(--accent-green);background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.25)}
+.ss-bear{color:var(--accent-red);background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.25)}
+.ss-neut{color:var(--text3);background:rgba(74,85,104,.18);border:1px solid var(--border)}
+.ss-caut{color:var(--accent-yellow);background:rgba(255,190,11,.12);border:1px solid rgba(255,190,11,.25)}
+.ez-bias{padding:10px 14px 14px;font-size:11px;color:var(--text2);line-height:1.55;border-top:1px solid var(--border);font-family:'Barlow',sans-serif}
+.ez-empty{padding:40px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);line-height:2.2}
+.ez-no-data{color:var(--text3);font-size:10px;font-family:'JetBrains Mono',monospace;padding:16px 0;text-align:center}
+.pb-header{margin-bottom:16px;animation:slideUp .3s ease both}
+.pb-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:.05em;color:var(--text);line-height:1.1;margin-bottom:6px;text-transform:uppercase}
+.pb-subtitle{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:.12em;color:var(--accent-green);text-transform:uppercase;margin-bottom:10px}
+.pb-thesis{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-green);border-radius:8px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);line-height:1.55;font-weight:300}
+.pb-thesis strong{color:var(--accent-green);font-weight:600}
+.pb-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;opacity:0;transform:translateY(12px);animation:cardIn .4s ease forwards}
+.pb-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;min-height:52px;transition:background .2s ease}
+.pb-toggle:hover{background:var(--surface2)}
+.pb-toggle .pb-num{color:var(--accent-green);font-family:'JetBrains Mono',monospace;font-size:11px;margin-right:10px;letter-spacing:.05em}
+.pb-toggle .pb-chev{color:var(--text3);font-size:14px;transition:transform .3s ease}
+.pb-section.open .pb-toggle .pb-chev{transform:rotate(180deg)}
+.pb-body{max-height:0;overflow:hidden;transition:max-height .4s ease;border-top:1px solid transparent}
+.pb-section.open .pb-body{max-height:8000px;border-top-color:var(--border)}
+.pb-content{padding:14px 16px 18px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);line-height:1.65;font-weight:300}
+.pb-content h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.1em;color:var(--accent-green);text-transform:uppercase;margin:16px 0 8px;border-bottom:1px solid var(--border);padding-bottom:5px}
+.pb-content h3:first-child{margin-top:0}
+.pb-content h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--text);text-transform:uppercase;margin:12px 0 6px}
+.pb-content p{margin:8px 0}
+.pb-content strong{color:var(--text);font-weight:600}
+.pb-content em{color:var(--text2);font-style:italic}
+.pb-content ul,.pb-content ol{margin:8px 0 12px;padding-left:20px}
+.pb-content li{margin:4px 0}
+.pb-content code{font-family:'JetBrains Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-size:11px;color:var(--accent-blue)}
+.pb-content pre{font-family:'JetBrains Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:12px;border-radius:6px;font-size:11px;color:var(--text);overflow-x:auto;line-height:1.5;margin:10px 0;white-space:pre}
+.pb-content blockquote{border-left:3px solid var(--accent-yellow);background:var(--glow-yellow);padding:10px 14px;margin:12px 0;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);border-radius:0 6px 6px 0}
+.pb-content blockquote strong{color:var(--accent-yellow)}
+.pb-content table{width:100%;border-collapse:collapse;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.pb-content th{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;background:var(--surface)}
+.pb-content td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.pb-content tr:last-child td{border-bottom:none}
+.pb-content tr:hover td{background:var(--surface)}
+.pb-content hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+.pb-callout-danger{border-left:3px solid var(--accent-red);background:var(--glow-red)}
+.pb-callout-danger strong{color:var(--accent-red)}
+.pb-footer{margin-top:14px;padding:10px 14px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-align:center;line-height:1.6}
+.pb-expand-all{display:flex;gap:8px;margin-bottom:12px}
+.pb-expand-btn{flex:1;background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:8px 12px;border-radius:5px;cursor:pointer;letter-spacing:.08em;transition:color .15s,border-color .15s,background .15s}
+.pb-expand-btn:hover{border-color:var(--accent-blue);color:var(--accent-blue);background:rgba(72,149,239,.06)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.4}}
+@keyframes shimmer{0%,100%{box-shadow:0 0 0 rgba(0,229,160,0)}50%{box-shadow:0 0 8px rgba(0,229,160,.5)}}
+@media(max-width:480px){.nav-tab{padding:11px 10px;font-size:10px;letter-spacing:.08em}.card-ticker{font-size:22px}.p-value{font-size:15px}.metrics-grid{grid-template-columns:1fr}.hdr-center{display:none}}
+</style>
+</head>
+<body>
+<header id="hdr">
+  <span class="hdr-left">⚡ OLIVER'S SETUPS</span>
+  <div class="hdr-center">
+    <span id="hdr-date"></span>
+    <span id="session-pill"></span>
+  </div>
+  <div class="hdr-right"><span class="live-badge">LIVE</span><div class="live-dot"></div><span id="hdr-time"></span></div>
+</header>
+<div class="page-scroll">
+  <div class="date-strip" id="date-strip"></div>
+  <nav class="main-nav" id="main-nav"></nav>
+  <div id="tab-setups" class="panel">
+    <div class="summary-bar" id="summary-bar"></div>
+    <div class="cards-list" id="cards-container"></div>
+  </div>
+  <div id="tab-perf" class="panel hidden"></div>
+  <div id="tab-signals" class="panel hidden"></div>
+  <div id="tab-rsiscan" class="panel hidden"></div>
+  <div id="tab-week" class="panel hidden"></div>
+  <div id="tab-ezpz" class="panel hidden"></div>
+  <div id="tab-playbook" class="panel hidden"></div>
+</div>
+<script>
+/* EZPZ_INDIVIDUAL_START */
+const EZPZ_INDIVIDUAL = [
+  {
+    ticker:"UBER",
+    analysedAt:"2026-04-19",
+    displayDate:"Apr 19, 2026",
+    price:77.10,
+    direction:"SHORT",
+    verdict:"BEARISH",
+    conviction:"8/17 Bearish",
+    bullish:3,
+    bearish:8,
+    neutral:5,
+    caution:1,
+    entry:77,
+    stop:80.50,
+    target:70,
+    earnings:"~May 2026 — CAUTION ⚠️",
+    biasNote:"Robotaxi gap-up (+9.4%) being sold by institutions. Dark pool shows -$14.3B net sell imbalance with prints clustering at $77.43–77.44 (distribution, not accumulation). Put OI dominates across every major expiry. Money sentiment net bearish and elevated above 30d baseline. GEX positive, pinning at the $77.00/$77.50 gamma flip zone. Max pain also $77 — trapped.",
+    signals:[
+      {signal:"Net Premium Flow (PCR OI)",source:"Tab A",score:"NEUTRAL",detail:"0.7855 — neutral band (0.7–1.0)"},
+      {signal:"PCR Near-term Traded",source:"Tab B",score:"BULLISH",detail:"0.13–0.23 on swing expirations"},
+      {signal:"IVx Skew",source:"Tab A",score:"BEARISH",detail:"-2.01%, puts pricier than calls"},
+      {signal:"IVx Level",source:"Tab A",score:"NEUTRAL",detail:"36.95%, mid-range (25–60%)"},
+      {signal:"PCR by Expiry Swing OI",source:"Tab B",score:"BEARISH",detail:"Put-heavy OI at May/Jun expirations"},
+      {signal:"GEX Environment",source:"Tab C",score:"BEARISH",detail:"+8.1M positive = pinning, not trending"},
+      {signal:"Price vs Call/Put Wall",source:"Tab C",score:"NEUTRAL",detail:"$77 between $70 put wall & $80 call wall"},
+      {signal:"Short Interest",source:"Tab E",score:"BULLISH",detail:"3% official SI — low short conviction"},
+      {signal:"Money Sentiment Net $",source:"Tab F",score:"BEARISH",detail:"Bearish $12.4M vs Bullish $7.9M"},
+      {signal:"Money Sentiment vs 30d Avg",source:"Tab F",score:"BEARISH",detail:"Today $12.4M > 30d avg $9.4M (elevated)"},
+      {signal:"Unusual Activity Sweeps",source:"Tab G",score:"NEUTRAL",detail:"No qualifying 14–60d $500K+ flows"},
+      {signal:"OI Net Change",source:"Tab H",score:"BEARISH",detail:"Put OI 718K vs Call OI 564K"},
+      {signal:"OI Concentration",source:"Tab H",score:"BEARISH",detail:"All top expirations put-heavy"},
+      {signal:"Dark Pool Imbalance",source:"Tab I",score:"BEARISH",detail:"-$14.3B net sell imbalance"},
+      {signal:"Dark Pool Levels",source:"Tab I",score:"BEARISH",detail:"DP cluster $77.43–77.44 = overhead resistance"},
+      {signal:"Earnings",source:"Lookup",score:"CAUTION",detail:"~2–3 weeks out, inside earnings window"},
+      {signal:"News Sentiment",source:"Tab A",score:"BULLISH",detail:"97% bullish — robotaxi $10B catalyst"}
+    ]
+  },
+  {
+    ticker:"AAPL",
+    analysedAt:"2026-04-20",
+    displayDate:"Apr 20, 2026",
+    price:272.42,
+    direction:"LONG",
+    verdict:"BULLISH",
+    conviction:"8/17 Bullish",
+    bullish:8,
+    bearish:0,
+    neutral:9,
+    caution:1,
+    entry:272,
+    stop:263,
+    target:287,
+    earnings:"~Apr 30-May 2 — CAUTION ⚠️ (10 days)",
+    biasNote:"Strong structural bullish alignment across options flow and dark pool. PCR OI 0.60 below bullish threshold, calls pricier (+13.82% skew), OI 1.56 call-heavy across all major expirations (Jun/May/Jan all call-dominated). Dark pool printing +$4.6B net buy with accumulation cluster at $271-272 — smart money buying support. Money sentiment slightly call-biased. Only caveat: earnings ~Apr 30 limits swing window to ~10 days. Entry at/near dark pool cluster, stop below $265 put wall.",
+    signals:[
+      {signal:"Net Premium Flow (PCR OI)",source:"Tab A",score:"BULLISH",detail:"PCR OI 0.6001 — below 0.7 bullish threshold"},
+      {signal:"PCR Near-term Vol",source:"Tab B",score:"NEUTRAL",detail:"Feed not loaded"},
+      {signal:"IVx Skew",source:"Tab A",score:"BULLISH",detail:"+13.82% — calls pricier, bullish bias"},
+      {signal:"IVx Level",source:"Tab A",score:"NEUTRAL",detail:"46.07% — mid-range (25-60%)"},
+      {signal:"PCR by Expiry (swing window)",source:"Tab B",score:"NEUTRAL",detail:"Feed not loaded"},
+      {signal:"GEX Environment",source:"Tab C",score:"NEUTRAL",detail:"Zeros (feed issue); 0DTE EM ±$4.03"},
+      {signal:"Price vs Call/Put Wall",source:"Tab C",score:"NEUTRAL",detail:"No call/put wall data"},
+      {signal:"Short Interest",source:"Tab E",score:"NEUTRAL",detail:"2% float, DTC 2.96, borrow 0%, rising +2%"},
+      {signal:"Money Sentiment Net $",source:"Tab F",score:"BULLISH",detail:"Call bought $965.7K > Put bought $701.1K"},
+      {signal:"Money Sentiment vs 30d Avg",source:"Tab F",score:"NEUTRAL",detail:"Early session — can't compare to 30d full-day avg"},
+      {signal:"Unusual Activity Sweeps",source:"Tab G",score:"NEUTRAL",detail:"No qualifying sweeps (14-60d, $500K+)"},
+      {signal:"OI Net Change",source:"Tab H",score:"BULLISH",detail:"Call/Put ratio 1.56 — call-heavy across all expiries"},
+      {signal:"OI Concentration",source:"Tab H",score:"BULLISH",detail:"Jun/May/Jan 2027 all call-dominated"},
+      {signal:"Dark Pool Imbalance",source:"Tab I",score:"BULLISH",detail:"+$4.6B net buy imbalance"},
+      {signal:"Dark Pool Levels",source:"Tab I",score:"BULLISH",detail:"DP cluster $271-272 = accumulation at support"},
+      {signal:"Earnings",source:"Lookup",score:"CAUTION",detail:"~Apr 30-May 2, 10 days out — short swing window"},
+      {signal:"TradingView Chart",source:"RSI Scan",score:"NEUTRAL",detail:"No RSI breakout signal this session"},
+      {signal:"News Sentiment",source:"Tab A",score:"BULLISH",detail:"97% Bullish across articles"}
+    ]
+  },
+  {
+    ticker:"TSLA",
+    analysedAt:"2026-04-20",
+    displayDate:"Apr 20, 2026",
+    price:399.22,
+    direction:"SHORT",
+    verdict:"BEARISH",
+    conviction:"6/17 Bearish",
+    bullish:2,
+    bearish:6,
+    neutral:9,
+    caution:1,
+    entry:null,
+    stop:null,
+    target:null,
+    earnings:"TONIGHT after close — DO NOT HOLD ⚠️",
+    biasNote:"Institutional distribution confirmed: dark pool -$258.3B net sell with prints at $402-405 at open, stock now $399. Post-earnings put wall extremely heavy — Apr 24 PCR OI 3.11, Apr 27: 1.82 (institutions hedged hard for downside). IVx at 100.33% (very expensive) with -12.99% skew (puts pricier). Only bullish reads are RSI momentum and news. DO NOT enter swing before earnings tonight. Post-earnings play: if gap down, watch for short entry on bounce to $400-405. If gap up above $420, stand aside.",
+    signals:[
+      {signal:"Net Premium Flow (PCR OI)",source:"Tab A",score:"NEUTRAL",detail:"PCR OI 0.9989 — virtually 1:1 balanced"},
+      {signal:"PCR Near-term Vol",source:"Tab B",score:"NEUTRAL",detail:"0DTE PCR 0.07 = earnings call speculation, not meaningful"},
+      {signal:"IVx Skew",source:"Tab A",score:"BEARISH",detail:"-12.99% — puts pricier than calls"},
+      {signal:"IVx Level",source:"Tab A",score:"BEARISH",detail:"IVx 100.33% — very expensive (>60%)"},
+      {signal:"PCR by Expiry (swing window)",source:"Tab B",score:"BEARISH",detail:"Apr 24: 3.11, Apr 27: 1.82 — post-earnings put wall"},
+      {signal:"GEX Environment",source:"Tab C",score:"NEUTRAL",detail:"No GEX data available"},
+      {signal:"Price vs Call/Put Wall",source:"Tab C",score:"NEUTRAL",detail:"No data"},
+      {signal:"Short Interest",source:"Tab E",score:"NEUTRAL",detail:"4% float, DTC 1.06, borrow 0%, rising +8%"},
+      {signal:"Money Sentiment Net $",source:"Tab F",score:"NEUTRAL",detail:"Bullish $46.6M vs Bearish $44.4M — marginal 5% edge"},
+      {signal:"Money Sentiment vs 30d Avg",source:"Tab F",score:"NEUTRAL",detail:"30d avg balanced ($409M bear / $412M bull)"},
+      {signal:"Unusual Activity Sweeps",source:"Tab G",score:"NEUTRAL",detail:"No qualifying sweeps (14-60d, $500K+)"},
+      {signal:"OI Net Change",source:"Tab H",score:"NEUTRAL",detail:"Overall 1.16 call-heavy but Apr 24 key expiry put-heavy"},
+      {signal:"OI Concentration",source:"Tab H",score:"BEARISH",detail:"Apr 24: 163K puts vs 87K calls — post-earnings hedge"},
+      {signal:"Dark Pool Imbalance",source:"Tab I",score:"BEARISH",detail:"-$258.3B net sell — massive distribution at open"},
+      {signal:"Dark Pool Levels",source:"Tab I",score:"BEARISH",detail:"DP prints $402-405 = distribution, now $399 (slipping)"},
+      {signal:"Earnings",source:"Lookup",score:"CAUTION",detail:"TONIGHT after close — binary event, ±$20.99 EM priced"},
+      {signal:"TradingView Chart",source:"RSI Scan",score:"BULLISH",detail:"RSI 60.31 above Upper BB 56.31 — 1D breakout"},
+      {signal:"News Sentiment",source:"Tab A",score:"BULLISH",detail:"89% Bullish across articles"}
+    ]
+  },
+  {
+    ticker:"SLV",
+    analysedAt:"2026-04-21",
+    displayDate:"Apr 21, 2026",
+    price:71.45,
+    direction:"SHORT",
+    verdict:"BEARISH",
+    conviction:"5/17 Bearish",
+    bullish:4,
+    bearish:5,
+    neutral:8,
+    caution:0,
+    entry:72.15,
+    stop:75.50,
+    target:68.00,
+    earnings:null,
+    biasNote:"SLV bearish case led by smart money: -$22.4B dark pool net sell imbalance is the standout signal — massive distribution at the $72.15/$72.61 cluster which now sits as overhead resistance. TCP printed a sell on the daily. Key tension: options structure is structurally bullish (1.77 call/put OI ratio, PCR 0.24–0.48 across swing window). GEX +192.2M pins price between put wall ($68) and call wall ($75). RSI at 54.84 near lower band — fading momentum, not yet oversold. Sell signal + DP distribution tips bearish near-term. Best entry on bounce to $72+, target $68 put wall.",
+    signals:[
+      {signal:"Net Premium Flow (PCR OI)",source:"Tab A",score:"NEUTRAL",detail:"No data (ETF — EZPZ limited)"},
+      {signal:"PCR Near-term Vol",source:"Tab A",score:"NEUTRAL",detail:"No data (ETF)"},
+      {signal:"IVx Skew",source:"Tab A",score:"NEUTRAL",detail:"No data (ETF)"},
+      {signal:"IVx Level",source:"Tab A",score:"NEUTRAL",detail:"No data (ETF)"},
+      {signal:"PCR by Expiry (swing)",source:"Tab B",score:"BULLISH",detail:"Most expirations call-heavy; OI PCR 0.24–0.68 across May–Jun window"},
+      {signal:"GEX Environment",source:"Tab C",score:"BEARISH",detail:"+192.2M positive = pinning, non-trending"},
+      {signal:"Price vs Call/Put Walls",source:"Tab C",score:"NEUTRAL",detail:"Spot $71.45 between put wall $68 and call wall $75"},
+      {signal:"Short Interest",source:"Tab E",score:"NEUTRAL",detail:"0% borrow rate, stable (ETF — not meaningful)"},
+      {signal:"Money Sentiment Net $",source:"Tab F",score:"BULLISH",detail:"Call Bought $27M > Put Bought $10.3M"},
+      {signal:"Money Sentiment vs 30d Avg",source:"Tab F",score:"BEARISH",detail:"Today $39.2M bull vs 30D avg $59.7M — well below average"},
+      {signal:"Unusual Activity Sweeps",source:"Tab G",score:"NEUTRAL",detail:"No qualifying sweeps (14–60d, $500K+)"},
+      {signal:"OI Net Change",source:"Tab H",score:"BULLISH",detail:"Call OI 5.1M vs Put OI 2.9M — ratio 1.77 call-heavy"},
+      {signal:"OI Concentration",source:"Tab H",score:"BULLISH",detail:"Jun 18 & May 15 top expiries, both call-dominant"},
+      {signal:"Dark Pool Imbalance",source:"Tab I",score:"BEARISH",detail:"-$22.4B net sell — massive distribution"},
+      {signal:"Dark Pool Levels",source:"Tab I",score:"BEARISH",detail:"Top levels $72.15/$72.61 all above spot — overhead resistance"},
+      {signal:"Earnings",source:"Lookup",score:"NEUTRAL",detail:"ETF — no earnings (N/A)"},
+      {signal:"TradingView Chart",source:"TCP",score:"BEARISH",detail:"SELL signal (purple diamond) on 1D"}
+    ]
+  }
+];
+/* EZPZ_INDIVIDUAL_END */
+
+/* EZPZ_WATCHLIST_START */
+const EZPZ_WATCHLIST = [];
+/* EZPZ_WATCHLIST_END */
+
+/* RSI_SCAN_START */
+const RSI_SCAN_DATA = {
+  scannedAt: "2026-04-20",
+  timeframe: "1D",
+  results: [
+    {ticker:"SPY",signal:"BULLISH",rsiValue:73.17,bbLevel:58.86,bbType:"Upper BB"},
+    {ticker:"GOOG",signal:"BULLISH",rsiValue:73.00,bbLevel:65.77,bbType:"Upper BB"},
+    {ticker:"TSLA",signal:"BULLISH",rsiValue:60.31,bbLevel:56.31,bbType:"Upper BB"},
+    {ticker:"LUMN",signal:"BULLISH",rsiValue:70.01,bbLevel:58.66,bbType:"Upper BB"},
+    {ticker:"MSTR",signal:"BULLISH",rsiValue:71.95,bbLevel:45.47,bbType:"Upper BB"}
+  ]
+};
+/* RSI_SCAN_END */
+
+/* ALLDAYS_START */
+const ALL_DAYS_DATA = {
+  lastUpdated: "2026-04-16T22:30:00.000Z",
+  days: {
+    "2026-04-15": {
+      date:"15 Apr 2026",label:"WED 15 APR",generated:"18:30",
+      signals:[
+        {ticker:"MSFT",signal:"BUY",source:"TCP + EZPZ"},
+        {ticker:"AAPL",signal:"BUY",source:"EZPZ"},
+        {ticker:"WFC",signal:"SELL",source:"TCP + EZPZ"},
+        {ticker:"LLY",signal:"SELL",source:"EZPZ"},
+        {ticker:"AMZN",signal:"SELL",source:"EZPZ"}
+      ],
+      tickers:[
+        {ticker:"MSFT",verdict:"STRONG",conviction:"8/10",entry:411,stop:396,target:435,direction:"LONG",entryDate:"2026-04-15",
+          metrics:[
+            {key:"Net Premium Flow",value:"Massive Call Blocks",type:"bull"},
+            {key:"PCR OI",value:"< 0.7 Bullish",type:"bull"},
+            {key:"IVx Skew",value:"Positive (Calls+)",type:"bull"},
+            {key:"Unusual Activity",value:"Large Call Sweeps",type:"bull"},
+            {key:"Earnings",value:"Apr 28–29 ⚠️",type:"warn"}
+          ],
+          currentPrice:420.26,previousClose:411.22,priceChange:9.04,priceChangePct:2.20,
+          pnlDollar:9.26,pnlPct:2.25,status:"IN PLAY",daysOpen:1,progressPct:38.6,rrRatio:1.6,nextEarningsDate:"2026-04-28"},
+        {ticker:"AAPL",verdict:"WEAK",conviction:"6/10",entry:266,stop:257,target:280,direction:"LONG",entryDate:"2026-04-15",
+          metrics:[
+            {key:"PCR Near-term",value:"< 1.0 Bullish",type:"bull"},
+            {key:"IVx Level",value:"Elevated",type:"warn"},
+            {key:"News Sentiment",value:"Mixed",type:"neut"},
+            {key:"TCP Signal",value:"None (EZPZ only)",type:"neut"},
+            {key:"Earnings",value:"Apr 30–May 2 ⚠️",type:"warn"}
+          ],
+          currentPrice:263.40,previousClose:266.43,priceChange:-3.03,priceChangePct:-1.14,
+          pnlDollar:-2.60,pnlPct:-0.98,status:"IN PLAY",daysOpen:1,progressPct:-18.6,rrRatio:1.6,nextEarningsDate:"2026-04-30"},
+        {ticker:"WFC",verdict:"STRONG",conviction:"8/10",entry:80,stop:83,target:74.50,direction:"SHORT",entryDate:"2026-04-15",
+          metrics:[
+            {key:"IVx Skew",value:"Strongly Negative",type:"bear"},
+            {key:"PCR All Expiries",value:"Extreme Bearish",type:"bear"},
+            {key:"Unusual Activity",value:"Heavy Put Loading",type:"bear"},
+            {key:"Catalyst",value:"Revenue Miss",type:"bear"},
+            {key:"TCP + EZPZ",value:"Dual Confirmation",type:"bull"}
+          ],
+          currentPrice:81.25,previousClose:80.29,priceChange:0.96,priceChangePct:1.20,
+          pnlDollar:-1.25,pnlPct:-1.56,status:"IN PLAY",daysOpen:1,progressPct:-22.7,rrRatio:1.83,nextEarningsDate:null},
+        {ticker:"LLY",verdict:"STRONG",conviction:"9/10",entry:905,stop:930,target:860,direction:"SHORT",entryDate:"2026-04-15",
+          metrics:[
+            {key:"IVx Skew",value:"-5.26% Bearish",type:"bear"},
+            {key:"PCR OI",value:"1.26 Bearish",type:"bear"},
+            {key:"VEM Imbalance",value:"12.9% Bearish",type:"bear"},
+            {key:"Delta Skew Wtd",value:"-66.87%",type:"bear"},
+            {key:"Max Pain",value:"$905 (At MP)",type:"neut"},
+            {key:"Short Interest",value:"1% float +12%",type:"bear"},
+            {key:"Catalyst",value:"FDA Safety Request",type:"bear"}
+          ],
+          currentPrice:903.99,previousClose:905.03,priceChange:-1.04,priceChangePct:-0.11,
+          pnlDollar:1.01,pnlPct:0.11,status:"OPEN",daysOpen:1,progressPct:2.24,rrRatio:1.8,nextEarningsDate:null},
+        {ticker:"AMZN",verdict:"WEAK",conviction:"6/10",entry:248,stop:253,target:232.50,direction:"SHORT",entryDate:"2026-04-15",
+          metrics:[
+            {key:"PCR",value:"Bearish Lean",type:"bear"},
+            {key:"Price Level",value:"At Resistance",type:"bear"},
+            {key:"TCP Signal",value:"None (EZPZ only)",type:"neut"},
+            {key:"Earnings",value:"Apr 30–May 2 ⚠️",type:"warn"}
+          ],
+          currentPrice:249.70,previousClose:248.50,priceChange:1.20,priceChangePct:0.48,
+          pnlDollar:-1.70,pnlPct:-0.69,status:"IN PLAY",daysOpen:1,progressPct:-11.0,rrRatio:3.1,nextEarningsDate:"2026-04-30"}
+      ]
+    },
+    "2026-04-16": {
+      date:"16 Apr 2026",label:"THU 16 APR",generated:"22:30",
+      signals:[
+        {ticker:"ORCL",signal:"SELL",source:"TCP"},
+        {ticker:"TMUS",signal:"BUY",source:"TCP"},
+        {ticker:"LLY",signal:"SELL",source:"TCP"},
+        {ticker:"GS",signal:"SELL",source:"TCP"},
+        {ticker:"BAC",signal:"SELL",source:"TCP"},
+        {ticker:"BRK.B",signal:"SELL",source:"TCP"},
+        {ticker:"AMD",signal:"SELL",source:"TCP"}
+      ],
+      tickers:[
+        {ticker:"ORCL",verdict:"STRONG",conviction:"9/10",entry:179,stop:186,target:160,direction:"SHORT",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Skew",value:"-64.65% Bearish",type:"bear"},
+            {key:"IVx Level",value:"60.69% Expensive",type:"warn"},
+            {key:"VEM Imbalance",value:"106.53% Bearish",type:"bear"},
+            {key:"DEM Imbalance",value:"65.43% Bearish",type:"bear"},
+            {key:"PCR OI",value:"0.50 near / 1.42–2.04 longer",type:"bear"},
+            {key:"Max Pain",value:"$175–178 (Above MP)",type:"bear"},
+            {key:"Short Interest",value:"3% float, 45% util",type:"neut"},
+            {key:"Unusual Activity",value:"$450K fading bounce",type:"bear"},
+            {key:"Earnings",value:"Jun 17–20 ✅ Clear",type:"bull"}
+          ],
+          currentPrice:178.34,previousClose:169.81,priceChange:8.53,priceChangePct:5.02,
+          pnlDollar:0.66,pnlPct:0.37,status:"OPEN",daysOpen:0,progressPct:3.47,rrRatio:2.71,nextEarningsDate:"2026-06-17"},
+        {ticker:"TMUS",verdict:"STRONG",conviction:"7/10",entry:197,stop:189,target:205,direction:"LONG",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Skew",value:"+11.83% Bullish",type:"bull"},
+            {key:"VEM Imbalance",value:"28.22% Bullish",type:"bull"},
+            {key:"PCR OI",value:"0.29 Very Bullish",type:"bull"},
+            {key:"Max Pain",value:"$195–198 (At MP)",type:"neut"},
+            {key:"Short Interest",value:"9% float +78% Squeeze!",type:"bull"},
+            {key:"Unusual Activity",value:"$3.1M long-dated calls",type:"bull"}
+          ],
+          currentPrice:197.12,previousClose:190.19,priceChange:6.93,priceChangePct:3.64,
+          pnlDollar:0.12,pnlPct:0.06,status:"OPEN",daysOpen:0,progressPct:1.5,rrRatio:1.0,nextEarningsDate:null},
+        {ticker:"LLY",verdict:"STRONG",conviction:"9/10",entry:905,stop:930,target:860,direction:"SHORT",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Skew",value:"-5.26% Bearish",type:"bear"},
+            {key:"PCR All Expiries",value:"1.11–2.06 Bearish",type:"bear"},
+            {key:"Delta Skew Wtd",value:"-66.87%",type:"bear"},
+            {key:"Max Pain",value:"$905 (At MP)",type:"neut"},
+            {key:"Short Interest",value:"3% float +12%",type:"bear"},
+            {key:"Synthetic Short",value:"$22.89B",type:"bear"},
+            {key:"Catalyst",value:"FDA Foundayo Request",type:"bear"},
+            {key:"Volume",value:"135% of Avg (Selling)",type:"bear"}
+          ],
+          currentPrice:903.99,previousClose:905.03,priceChange:-1.04,priceChangePct:-0.11,
+          pnlDollar:1.01,pnlPct:0.11,status:"OPEN",daysOpen:0,progressPct:2.24,rrRatio:1.8,nextEarningsDate:null},
+        {ticker:"GS",verdict:"WEAK",conviction:"6/10",entry:902.50,stop:915,target:860,direction:"SHORT",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Skew",value:"-4.95% Bearish",type:"bear"},
+            {key:"VEM Imbalance",value:"14.82% Bearish",type:"bear"},
+            {key:"Delta Skew Wtd",value:"61.98% Bearish",type:"bear"},
+            {key:"PCR OI",value:"0.77 Near Neutral",type:"neut"},
+            {key:"Max Pain",value:"$900 (At MP / Ceiling)",type:"bear"},
+            {key:"Short Interest",value:"5% float +4%",type:"bear"},
+            {key:"Unusual Activity",value:"$600K long-dated puts",type:"bear"}
+          ],
+          currentPrice:900.00,previousClose:899.49,priceChange:0.51,priceChangePct:0.06,
+          pnlDollar:2.50,pnlPct:0.28,status:"OPEN",daysOpen:0,progressPct:5.88,rrRatio:3.4,nextEarningsDate:null},
+        {ticker:"BAC",verdict:"WEAK",conviction:"6/10",entry:54.25,stop:56.50,target:49,direction:"SHORT",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Skew",value:"+22.58% (Surface Bull)",type:"warn"},
+            {key:"DEM Imbalance",value:"86.53% Bearish",type:"bear"},
+            {key:"Delta Skew Wtd",value:"70.61% Bearish",type:"bear"},
+            {key:"PCR OI",value:"0.83 Near Neutral",type:"neut"},
+            {key:"PCR Oct Expiry",value:"8.80 Extreme Puts!",type:"bear"},
+            {key:"Max Pain",value:"$52–54 (Near MP)",type:"neut"},
+            {key:"Short Interest",value:"5% float -2%",type:"neut"}
+          ],
+          currentPrice:53.51,previousClose:54.32,priceChange:-0.81,priceChangePct:-1.49,
+          pnlDollar:0.74,pnlPct:1.36,status:"IN PLAY",daysOpen:0,progressPct:14.10,rrRatio:2.33,nextEarningsDate:null},
+        {ticker:"BRK.B",verdict:"WEAK",conviction:"5/10",entry:475,stop:482,target:462,direction:"SHORT",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Skew",value:"+15.47% (Surface Bull)",type:"warn"},
+            {key:"Delta Skew Wtd",value:"-83.13% Bearish",type:"bear"},
+            {key:"PCR OI",value:"0.53 Call-Heavy",type:"neut"},
+            {key:"Max Pain",value:"$475 (Pinning Risk)",type:"neut"},
+            {key:"Short Interest",value:"No data",type:"neut"}
+          ],
+          currentPrice:475.12,previousClose:474.09,priceChange:1.03,priceChangePct:0.22,
+          pnlDollar:-0.12,pnlPct:-0.03,status:"OPEN",daysOpen:0,progressPct:-0.92,rrRatio:1.86,nextEarningsDate:null},
+        {ticker:"AMD",verdict:"AVOID",conviction:"4/10",entry:279,stop:288,target:255,direction:"SHORT",entryDate:"2026-04-16",
+          metrics:[
+            {key:"IVx Level",value:"62.20% Very Elevated",type:"warn"},
+            {key:"Delta Skew Wtd",value:"97.85% Bearish",type:"bear"},
+            {key:"PCR OI",value:"1.22 Put-Heavy",type:"bear"},
+            {key:"Unusual Activity",value:"$877K fading breakout",type:"bear"},
+            {key:"Volume",value:"64M vs 36M avg",type:"warn"},
+            {key:"Earnings",value:"Apr 28–29 ⚠️ Binary!",type:"warn"},
+            {key:"Note",value:"Watch Only — no entry yet",type:"warn"}
+          ],
+          currentPrice:278.26,previousClose:258.12,priceChange:20.14,priceChangePct:7.80,
+          pnlDollar:0.74,pnlPct:0.27,status:"OPEN",daysOpen:0,progressPct:3.08,rrRatio:2.67,nextEarningsDate:"2026-04-28"}
+      ]
+    }
+  },
+  allTimeStats:{
+    totalSignals:12,totalLong:3,totalShort:9,strongCount:6,weakCount:5,avoidCount:1,
+    winRate:null,avgRR:2.14,closedCount:0,
+    bestTrade:{ticker:"MSFT",date:"2026-04-15",pnlPct:2.25,pnlDollar:9.26,entry:411},
+    worstTrade:{ticker:"WFC",date:"2026-04-15",pnlPct:-1.56,pnlDollar:-1.25,entry:80},
+    strongCallAccuracy:null,currentStreak:0,
+    signalSourceStats:{
+      "Trinity Cipher":{count:7,wins:0,losses:0},
+      "EZPZ Swing":{count:3,wins:0,losses:0},
+      "TCP + EZPZ":{count:2,wins:0,losses:0}
+    }
+  }
+};
+/* ALLDAYS_END */
+
+const ALL_TAB_IDS = ['setups','perf','signals','rsiscan','week','ezpz','playbook'];
+const NAV_TABS = [
+  {id:'setups',lbl:'SETUPS'},
+  {id:'perf',lbl:'PERFORMANCE'},
+  {id:'signals',lbl:'SIGNALS'},
+  {id:'rsiscan',lbl:'RSI SCAN'},
+  {id:'week',lbl:'WEEK REVIEW'},
+  {id:'ezpz',lbl:'EZPZ DEEP'},
+  {id:'playbook',lbl:'PLAYBOOK'}
+];
+const DAYS_ORDER = Object.keys(ALL_DAYS_DATA.days).sort();
+let currentDayKey = DAYS_ORDER[DAYS_ORDER.length-1];
+let currentNavTab = 'setups';
+let signalFilter = 'ALL';
+
+function fmt(n,d=2){return n==null?'—':Number(n).toFixed(d)}
+function fmtP(n){if(n==null)return'—';return'$'+Number(n).toFixed(2)}
+function fmtDelta(c,p){
+  if(c==null)return'';
+  const arr=c>=0?'▲':'▼';
+  const cls=c>=0?'d-up':'d-down';
+  return`<span class="${cls}">${arr} ${c>=0?'+':''}${Number(c).toFixed(2)} (${p>=0?'+':''}${Number(p).toFixed(2)}%)</span>`;
+}
+function statusBadge(s){
+  const m={'IN PLAY':'<span class="status-badge s-inplay">IN PLAY</span>','OPEN':'<span class="status-badge s-open">OPEN</span>','HIT TARGET':'<span class="status-badge s-hit">✅ HIT TARGET</span>','STOPPED OUT':'<span class="status-badge s-stopped">❌ STOPPED</span>','EXPIRED':'<span class="status-badge s-expired">EXPIRED</span>'};
+  return m[s]||`<span class="status-badge s-open">${s}</span>`;
+}
+function vBadge(v){const m={STRONG:'<span class="badge b-strong">STRONG</span>',WEAK:'<span class="badge b-weak">WEAK</span>',AVOID:'<span class="badge b-avoid">AVOID</span>'};return m[v]||'';}
+function dBadge(d){return d==='LONG'?'<span class="badge b-long">▲ LONG</span>':'<span class="badge b-short">▼ SHORT</span>';}
+function vClass(v){return v==='STRONG'?'v-strong':v==='WEAK'?'v-weak':'v-avoid'}
+function tClass(v){return v==='STRONG'?'t-strong':v==='WEAK'?'t-weak':'t-avoid'}
+
+function getMarketSession(){
+  try{
+    const et=new Date().toLocaleString('en-US',{timeZone:'America/New_York',hour12:false,hour:'2-digit',minute:'2-digit'});
+    const parts=et.split(':');
+    const h=parseInt(parts[0]),m=parseInt(parts[1]);
+    const mins=h*60+m;
+    if(mins>=4*60&&mins<9*60+30)return{label:'PRE-MARKET',cls:'sp-pre'};
+    if(mins>=9*60+30&&mins<16*60)return{label:'MARKET OPEN',cls:'sp-open'};
+    if(mins>=16*60&&mins<20*60)return{label:'AFTER HOURS',cls:'sp-ah'};
+    return{label:'CLOSED',cls:'sp-closed'};
+  }catch(e){return{label:'',cls:'sp-closed'};}
+}
+
+function hasStrongSignals(dayKey){
+  const d=ALL_DAYS_DATA.days[dayKey];
+  return d&&d.tickers.some(t=>t.verdict==='STRONG');
+}
+
+function getRsiBadge(ticker){
+  if(!RSI_SCAN_DATA||!RSI_SCAN_DATA.results)return'';
+  const r=RSI_SCAN_DATA.results.find(x=>x.ticker===ticker);
+  if(!r)return'';
+  return r.signal==='BULLISH'
+    ?'<span class="badge b-rsi-bull">RSI ▲ BB</span>'
+    :'<span class="badge b-rsi-bear">RSI ▼ BB</span>';
+}
+
+function calcStreak(){
+  const allT=[];
+  DAYS_ORDER.forEach(k=>ALL_DAYS_DATA.days[k].tickers.forEach(t=>allT.push(t)));
+  const closed=allT.filter(t=>t.status==='HIT TARGET'||t.status==='STOPPED OUT');
+  if(!closed.length)return null;
+  const dir=closed[closed.length-1].status==='HIT TARGET'?1:-1;
+  let n=0;
+  for(let i=closed.length-1;i>=0;i--){
+    const r=closed[i].status==='HIT TARGET'?1:-1;
+    if(r===dir)n+=dir;else break;
+  }
+  return n;
+}
+
+function copyTradeText(text,btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Copied';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='⎘ Copy Trade';btn.classList.remove('copied');},1600);
+  }).catch(()=>{btn.textContent='Copy failed';setTimeout(()=>{btn.textContent='⎘ Copy Trade';},1600);});
+}
+function copyTrade(ticker,dir,entry,stop,target,conviction,e){
+  e.stopPropagation();
+  const t=`${ticker} | ${dir} | Entry $${Number(entry).toFixed(2)} | Stop $${Number(stop).toFixed(2)} | Target $${Number(target).toFixed(2)} | Conviction ${conviction}`;
+  copyTradeText(t,e.currentTarget);
+}
+
+function buildBar(t){
+  const{entry,stop,target,direction,currentPrice,status}=t;
+  if(status==='HIT TARGET'){
+    return`<div class="prog-wrap"><div class="prog-track"><div class="prog-fill pf-green" style="width:100%"></div><div class="prog-dot dot-g" style="left:100%"></div></div><div class="prog-labels"><span style="color:var(--accent-red)">${fmtP(stop)}</span><span>ENTRY ${fmtP(entry)}</span><span style="color:var(--accent-green)">${fmtP(target)}</span></div></div>`;
+  }
+  if(status==='STOPPED OUT'){
+    return`<div class="prog-wrap"><div class="prog-track"><div class="prog-fill pf-red" style="width:100%"></div><div class="prog-dot dot-r" style="left:0%"></div></div><div class="prog-labels"><span style="color:var(--accent-red)">${fmtP(stop)}</span><span>ENTRY ${fmtP(entry)}</span><span style="color:var(--accent-green)">${fmtP(target)}</span></div></div>`;
+  }
+  let dotPos,entryPos;
+  if(direction==='LONG'){
+    const range=target-stop;
+    dotPos=Math.min(Math.max((currentPrice-stop)/range,0),1);
+    entryPos=(entry-stop)/range;
+  }else{
+    const range=stop-target;
+    dotPos=Math.min(Math.max((stop-currentPrice)/range,0),1);
+    entryPos=(stop-entry)/range;
+  }
+  const gaining=(direction==='LONG')?(currentPrice>=entry):(currentPrice<=entry);
+  const fp=(dotPos*100).toFixed(1);
+  const ep=(entryPos*100).toFixed(1);
+  return`<div class="prog-wrap"><div class="prog-track"><div class="prog-fill ${gaining?'pf-green':'pf-red'}" style="width:${fp}%"></div><div class="prog-entry" style="left:${ep}%"></div><div class="prog-dot ${gaining?'dot-g':'dot-r'}" style="left:${fp}%"></div></div><div class="prog-price-row"><span class="prog-price-lbl" style="left:${fp}%">${fmtP(currentPrice)}</span></div><div class="prog-labels"><span style="color:var(--accent-red)">${fmtP(stop)}</span><span style="color:var(--text3)">ENTRY ${fmtP(entry)}</span><span style="color:var(--accent-green)">${fmtP(target)}</span></div></div>`;
+}
+
+function buildCard(t,i,autoOpen){
+  const vc=vClass(t.verdict),tc=tClass(t.verdict);
+  const oc=autoOpen?' open':'';
+  const chips=t.metrics.map(m=>`<div class="metric-chip"><span class="chip-key">${m.key}</span><span class="chip-val cv-${m.type}">${m.value}</span></div>`).join('');
+  const rrFill=Math.min((t.rrRatio/5)*100,100);
+  const gc=t.pnlDollar>=0?'pnl-g':'pnl-r';
+  const sign=t.pnlDollar>=0?'+':'';
+  const dayLbl=t.daysOpen===0?'Today':`${t.daysOpen}d open`;
+  const rsiBadge=getRsiBadge(t.ticker);
+  const eTk=t.ticker.replace(/'/g,"\\'");
+  const eCv=t.conviction.replace(/'/g,"\\'");
+  return`<div class="ticker-card ${vc}${oc}" data-dir="${t.direction}" style="animation-delay:${300+i*55}ms" onclick="toggleCard(this)">
+<div class="card-header"><span class="card-ticker ${tc}">${t.ticker}</span><div class="card-badges">${vBadge(t.verdict)}${dBadge(t.direction)}${rsiBadge}</div><div class="card-right"><span class="conviction">${t.conviction}</span><span class="chevron">▾</span></div></div>
+<div class="price-row"><div class="price-cell"><span class="p-label">Entry</span><span class="p-value p-entry">${fmtP(t.entry)}</span></div><div class="price-cell"><span class="p-label">Stop</span><span class="p-value p-stop">${fmtP(t.stop)}</span></div><div class="price-cell"><span class="p-label">Target</span><span class="p-value p-target">${fmtP(t.target)}</span></div></div>
+<div class="live-strip"><div><span class="live-price">${fmtP(t.currentPrice)}</span> <span class="price-delta">${fmtDelta(t.priceChange,t.priceChangePct)}</span></div><div class="strip-right"><span class="days-lbl">${dayLbl}</span>${statusBadge(t.status)}</div></div>
+${buildBar(t)}
+<div class="pnl-row">If entered at ${fmtP(t.entry)}: <span class="pnl-v ${gc}">${sign}${fmtP(t.pnlDollar)} (${sign}${fmt(t.pnlPct)}%)</span></div>
+<div class="metrics-wrap"><div class="metrics-grid">${chips}</div><div class="rr-wrap"><span class="rr-label">R:R</span><span class="rr-val">1 : ${fmt(t.rrRatio,1)}</span><div class="rr-track"><div class="rr-fill" style="width:${rrFill}%"></div></div></div><button class="copy-btn" onclick="copyTrade('${eTk}','${t.direction}',${t.entry},${t.stop},${t.target},'${eCv}',event)">⎘ Copy Trade</button></div>
+</div>`;
+}
+
+function toggleCard(el){el.classList.toggle('open');}
+
+function buildEzpzCard(r,i){
+  const isLong=r.direction==='LONG';
+  const dc=isLong?'long':'short';
+  const dirBadge=isLong?'<span class="badge b-long">▲ LONG</span>':'<span class="badge b-short">▼ SHORT</span>';
+  const bulls=(r.signals||[]).filter(s=>s.score==='BULLISH').length;
+  const bears=(r.signals||[]).filter(s=>s.score==='BEARISH').length;
+  const neuts=(r.signals||[]).filter(s=>s.score==='NEUTRAL').length;
+  const cauts=(r.signals||[]).filter(s=>s.score==='CAUTION').length;
+  const total=bulls+bears+neuts+cauts||1;
+  const bPct=(bulls/total*100).toFixed(1);
+  const nPct=((neuts+cauts)/total*100).toFixed(1);
+  const rPct=(bears/total*100).toFixed(1);
+  const sigRows=(r.signals||[]).map(s=>{
+    const sc=s.score==='BULLISH'?'ss-bull':s.score==='BEARISH'?'ss-bear':s.score==='CAUTION'?'ss-caut':'ss-neut';
+    const sl=s.score==='BULLISH'?'BULL':s.score==='BEARISH'?'BEAR':s.score==='CAUTION'?'CAUT':'NEUT';
+    const rc=s.score==='BULLISH'?'row-bull':s.score==='BEARISH'?'row-bear':s.score==='CAUTION'?'row-caut':'';
+    return`<tr class="${rc}"><td><span class="sig-name">${s.signal}</span><span class="sig-src-lbl">${s.source}</span></td><td style="padding-right:8px"><span class="ss ${sc}">${sl}</span></td><td><span class="sig-detail-cell">${s.detail}</span></td></tr>`;
+  }).join('');
+  const entryFmt=r.entry!=null?fmtP(r.entry):'—';
+  const stopFmt=r.stop!=null?fmtP(r.stop):'—';
+  const targetFmt=r.target!=null?fmtP(r.target):'—';
+  const eTk2=r.ticker.replace(/'/g,"\\'");
+  const eCv2=r.conviction.replace(/'/g,"\\'");
+  return`<div class="ez-card dir-${dc}" onclick="toggleEzCard(this)">
+<div class="ez-card-top">
+  <span class="ez-ticker-lg ${dc}">${r.ticker}</span>
+  <div class="ez-top-mid">${dirBadge}</div>
+  <div class="ez-top-right">
+    <span class="ez-date-lbl">${r.displayDate||r.analysedAt}</span>
+    <span class="ez-conv-lbl">${r.conviction}</span>
+  </div>
+  <span class="ez-card-chevron">▾</span>
+</div>
+<div class="ez-card-levels">
+  <div class="ez-lvl"><span class="ez-lvl-lbl">Entry</span><span class="ez-lvl-val lv-entry">${entryFmt}</span></div>
+  <div class="ez-lvl"><span class="ez-lvl-lbl">Stop</span><span class="ez-lvl-val lv-stop">${stopFmt}</span></div>
+  <div class="ez-lvl"><span class="ez-lvl-lbl">Target</span><span class="ez-lvl-val lv-target">${targetFmt}</span></div>
+</div>
+<div class="ez-conv-bar-wrap">
+  <div class="ez-conv-bar">
+    <div class="ez-conv-seg-bull" style="width:${bPct}%"></div>
+    <div class="ez-conv-seg-neut" style="width:${nPct}%"></div>
+    <div class="ez-conv-seg-bear" style="width:${rPct}%"></div>
+  </div>
+  <div class="ez-conv-legend">
+    <span style="color:var(--accent-green)">${bulls} bull</span>
+    <span style="color:var(--text3)">${neuts+cauts} neut/caut</span>
+    <span style="color:var(--accent-red)">${bears} bear</span>
+  </div>
+</div>
+<div class="ez-card-footer">
+  ${r.earnings?`<span class="ez-earnings">${r.earnings}</span>`:'<span></span>'}
+  ${r.price?`<span class="ez-price-tag">Last ${fmtP(r.price)}</span>`:''}
+</div>
+<div class="ez-expand">
+  <div class="signal-tbl-wrap">
+    <table class="signal-tbl">
+      <thead><tr><th>Signal</th><th>Score</th><th>Detail</th></tr></thead>
+      <tbody>${sigRows||'<tr><td colspan="3" class="ez-no-data">No signals recorded</td></tr>'}</tbody>
+    </table>
+  </div>
+  ${r.biasNote?`<div class="ez-bias">${r.biasNote}</div>`:''}
+  <button class="copy-btn" onclick="copyTrade('${eTk2}','${r.direction}',${r.entry},${r.stop},${r.target},'${eCv2}',event)">⎘ Copy Trade</button>
+</div>
+</div>`;
+}
+
+function toggleEzCard(el){el.classList.toggle('open');}
+
+function renderDateStrip(){
+  document.getElementById('date-strip').innerHTML=DAYS_ORDER.map(k=>{
+    const d=ALL_DAYS_DATA.days[k];
+    const dot=hasStrongSignals(k)?'<span class="date-dot"></span>':'';
+    return`<div class="date-tab${k===currentDayKey?' active':''}" onclick="switchDay('${k}')">${d.label}${dot}</div>`;
+  }).join('');
+}
+
+function renderNav(){
+  document.getElementById('main-nav').innerHTML=NAV_TABS.map(t=>`<div class="nav-tab${currentNavTab===t.id?' active':''}" onclick="switchNav('${t.id}')">${t.lbl}</div>`).join('');
+}
+
+function renderSetups(){
+  const day=ALL_DAYS_DATA.days[currentDayKey];
+  if(!day)return;
+  const tickers=[...day.tickers].sort((a,b)=>{const o={STRONG:0,WEAK:1,AVOID:2};return(o[a.verdict]||2)-(o[b.verdict]||2);});
+  const strong=tickers.filter(t=>t.verdict==='STRONG').length;
+  const weak=tickers.filter(t=>t.verdict==='WEAK').length;
+  const avoid=tickers.filter(t=>t.verdict==='AVOID').length;
+  const longs=tickers.filter(t=>t.direction==='LONG').length;
+  const shorts=tickers.filter(t=>t.direction==='SHORT').length;
+  document.getElementById('summary-bar').innerHTML=`
+    <div class="stat-pill"><span class="val val-w">${tickers.length}</span><span class="lbl">Setups</span></div>
+    <div class="stat-pill"><span class="val val-g">${longs}</span><span class="lbl">Longs</span></div>
+    <div class="stat-pill"><span class="val val-r">${shorts}</span><span class="lbl">Shorts</span></div>
+    <div class="stat-pill"><span class="val val-g">${strong}</span><span class="lbl">Strong</span></div>
+    <div class="stat-pill"><span class="val val-y">${weak}</span><span class="lbl">Weak</span></div>
+    <div class="stat-pill"><span class="val val-r">${avoid}</span><span class="lbl">Avoid</span></div>`;
+  document.getElementById('cards-container').innerHTML=tickers.map((t,i)=>buildCard(t,i,t.verdict==='STRONG')).join('');
+}
+
+function renderPerf(){
+  const el=document.getElementById('tab-perf');
+  const s=ALL_DAYS_DATA.allTimeStats;
+  const allT=[];
+  DAYS_ORDER.forEach(k=>ALL_DAYS_DATA.days[k].tickers.forEach(t=>allT.push({...t,dayKey:k,dayLabel:ALL_DAYS_DATA.days[k].label})));
+  const streak=calcStreak();
+  let streakHtml;
+  if(streak===null){streakHtml=`<span class="streak-pill streak-none">—</span>`;}
+  else if(streak>0){streakHtml=`<span class="streak-pill streak-win">🔥 ${streak}W streak</span>`;}
+  else{streakHtml=`<span class="streak-pill streak-loss">⚠️ ${Math.abs(streak)}L streak</span>`;}
+  const srcRows=Object.entries(s.signalSourceStats).map(([name,v])=>{
+    const wr=v.wins+v.losses>0?Math.round(v.wins/(v.wins+v.losses)*100):null;
+    const wc=wr==null?'val-w':wr>=60?'val-g':wr>=40?'val-y':'val-r';
+    const bc=wr==null?'var(--border)':wr>=60?'var(--accent-green)':wr>=40?'var(--accent-yellow)':'var(--accent-red)';
+    return`<div class="src-row"><span class="src-name">${name}</span><span class="src-meta">${v.count} signals · ${v.wins}W ${v.losses}L</span><div class="src-bar-wrap"><div class="src-bar-fill" style="width:${wr??0}%;background:${bc}"></div></div><span class="src-wr ${wc}">${wr!=null?wr+'%':'—'}</span></div>`;
+  }).join('');
+  const rows=allT.sort((a,b)=>b.dayKey.localeCompare(a.dayKey)).map(t=>{
+    const gc=t.pnlDollar>=0?'val-g':'val-r';
+    const sign=t.pnlDollar>=0?'+':'';
+    return`<tr onclick="switchDay('${t.dayKey}');switchNav('setups')"><td style="color:var(--text3);font-size:10px">${t.dayLabel}</td><td style="color:var(--text);font-weight:600">${t.ticker}</td><td>${dBadge(t.direction)}</td><td>${vBadge(t.verdict)}</td><td>${fmtP(t.entry)}</td><td>${fmtP(t.currentPrice)}</td><td class="${gc}">${sign}${fmt(t.pnlPct)}%</td><td>${statusBadge(t.status)}</td></tr>`;
+  }).join('');
+  el.innerHTML=`
+<div class="perf-section"><div class="headline-grid">
+  <div class="hl-card"><span class="hl-val val-w">${s.totalSignals}</span><span class="hl-lbl">Total Signals</span></div>
+  <div class="hl-card"><span class="hl-val" style="color:var(--text2)">—</span><span class="hl-lbl">Win Rate</span></div>
+  <div class="hl-card"><span class="hl-val val-g">${fmt(s.avgRR,1)}</span><span class="hl-lbl">Avg R:R</span></div>
+  <div class="hl-card"><span class="hl-val" style="color:var(--text3)">0</span><span class="hl-lbl">Closed</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+  <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--text2);text-transform:uppercase">Streak</span>
+  ${streakHtml}
+</div>
+</div>
+<div class="perf-section"><div class="section-title">Signal Source</div><div class="source-card">${srcRows}</div></div>
+<div class="perf-section"><div class="section-title">Best &amp; Worst (Open P&amp;L)</div>
+<div class="bw-grid">
+  <div class="bw-card bw-best"><span class="bw-ticker" style="color:var(--accent-green)">${s.bestTrade.ticker}</span><span class="bw-pnl" style="color:var(--accent-green)">+${fmt(s.bestTrade.pnlPct)}%</span><span class="bw-detail">+$${fmt(s.bestTrade.pnlDollar)} vs ${fmtP(s.bestTrade.entry)}</span></div>
+  <div class="bw-card bw-worst"><span class="bw-ticker" style="color:var(--accent-red)">${s.worstTrade.ticker}</span><span class="bw-pnl" style="color:var(--accent-red)">${fmt(s.worstTrade.pnlPct)}%</span><span class="bw-detail">$${fmt(s.worstTrade.pnlDollar)} vs ${fmtP(s.worstTrade.entry)}</span></div>
+</div></div>
+<div class="perf-section"><div class="sa-card"><span class="sa-val">—</span><span class="sa-sub">STRONG call accuracy · No closed trades yet · ${s.strongCount} STRONG signals open</span></div></div>
+<div class="perf-section"><div class="section-title">All Trades</div>
+<div class="trades-wrap"><table class="at"><thead><tr><th>Date</th><th>Ticker</th><th>Dir</th><th>Verdict</th><th>Entry</th><th>Current</th><th>P&amp;L%</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+function renderSignals(){
+  const el=document.getElementById('tab-signals');
+  const day=ALL_DAYS_DATA.days[currentDayKey];
+  if(!day){el.innerHTML='<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;padding:20px 0">No signals for this day.</p>';return;}
+  const pm={};
+  day.tickers.forEach(t=>pm[t.ticker]={price:t.currentPrice,change:t.priceChange,pct:t.priceChangePct});
+  const filtered=day.signals.filter(s=>{
+    if(signalFilter==='ALL')return true;
+    if(signalFilter==='BUY')return s.signal==='BUY';
+    if(signalFilter==='SELL')return s.signal==='SELL';
+    return true;
+  });
+  const rows=filtered.map(s=>{
+    const p=pm[s.ticker]||{};
+    const sc=s.signal==='BUY'?'sc-buy':s.signal==='SELL'?'sc-sell':'sc-watch';
+    return`<tr><td>${s.ticker}</td><td class="${sc}">${s.signal}</td><td style="color:var(--text2);font-size:10px">${s.source}</td><td>${p.price?fmtP(p.price):'—'}</td><td>${p.change!=null?fmtDelta(p.change,p.pct):'—'}</td></tr>`;
+  }).join('');
+  const allCls=signalFilter==='ALL'?' sf-all':'';
+  const buyCls=signalFilter==='BUY'?' sf-buy':'';
+  const sellCls=signalFilter==='SELL'?' sf-sell':'';
+  el.innerHTML=`
+<div class="sig-filter">
+  <button class="sfbtn${allCls}" onclick="setSignalFilter('ALL')">ALL</button>
+  <button class="sfbtn${buyCls}" onclick="setSignalFilter('BUY')">BUY</button>
+  <button class="sfbtn${sellCls}" onclick="setSignalFilter('SELL')">SELL</button>
+</div>
+<div class="sig-wrap"><table class="st"><thead><tr><th>Ticker</th><th>Signal</th><th>Source</th><th>Price</th><th>Change</th></tr></thead><tbody>${rows||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-family:\'JetBrains Mono\',monospace;font-size:11px">No signals match filter</td></tr>'}</tbody></table></div>
+<div class="scan-note">Generated ${day.generated} · ${day.tickers.length} tickers analysed · ${day.signals.length} signals</div>`;
+}
+
+function setSignalFilter(f){
+  signalFilter=f;
+  renderSignals();
+}
+
+function renderRsiScan(){
+  const el=document.getElementById('tab-rsiscan');
+  const data=RSI_SCAN_DATA;
+  if(!data||!data.results||!data.results.length){
+    el.innerHTML=`<div class="rsi-empty">No RSI scan run yet.<br><span style="color:var(--accent-green)">run tv rsi scan</span> in Claude Code to populate.</div>`;
+    return;
+  }
+  const bull=data.results.filter(r=>r.signal==='BULLISH').length;
+  const bear=data.results.filter(r=>r.signal==='BEARISH').length;
+  const rows=data.results.map(r=>{
+    const isBull=r.signal==='BULLISH';
+    const sc=isBull?'sc-buy':'sc-sell';
+    const bg=isBull?'rgba(0,229,160,.03)':'rgba(255,77,109,.03)';
+    return`<tr style="background:${bg}"><td style="color:var(--text);font-weight:600;font-family:'Barlow Condensed',sans-serif;font-size:16px">${r.ticker}</td><td class="${sc}">${r.signal}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text)">${fmt(r.rsiValue,2)}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2)">${r.bbType}: ${fmt(r.bbLevel,2)}</td></tr>`;
+  }).join('');
+  el.innerHTML=`
+<div class="summary-bar">
+  <div class="stat-pill"><span class="val val-w">${data.results.length}</span><span class="lbl">Scanned</span></div>
+  <div class="stat-pill"><span class="val val-g">${bull}</span><span class="lbl">Bullish</span></div>
+  <div class="stat-pill"><span class="val val-r">${bear}</span><span class="lbl">Bearish</span></div>
+</div>
+${data.scannedAt?`<div class="rsi-meta"><span><b>${data.timeframe}</b> timeframe</span><span>Scanned <b>${data.scannedAt}</b></span></div>`:''}
+<div class="sig-wrap"><table class="st"><thead><tr><th>Ticker</th><th>Signal</th><th>RSI Value</th><th>BB Level</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderEzpz(){
+  const el=document.getElementById('tab-ezpz');
+  const watchlist=EZPZ_WATCHLIST||[];
+  const individual=EZPZ_INDIVIDUAL||[];
+  if(!watchlist.length&&!individual.length){
+    el.innerHTML=`<div class="ez-empty">No EZPZ results yet.<br><span style="color:var(--accent-green)">run ezpz $TICKER</span> to populate.</div>`;
+    return;
+  }
+  const all=[...watchlist,...individual];
+  const longs=all.filter(r=>r.direction==='LONG').length;
+  const shorts=all.filter(r=>r.direction==='SHORT').length;
+  const highConv=all.filter(r=>(r.bearish||0)>=7||(r.bullish||0)>=7).length;
+  let html=`<div class="summary-bar">
+    <div class="stat-pill"><span class="val val-w">${all.length}</span><span class="lbl">Analysed</span></div>
+    <div class="stat-pill"><span class="val val-g">${longs}</span><span class="lbl">Longs</span></div>
+    <div class="stat-pill"><span class="val val-r">${shorts}</span><span class="lbl">Shorts</span></div>
+    <div class="stat-pill"><span class="val val-y">${highConv}</span><span class="lbl">High Conv</span></div>
+  </div>`;
+  if(watchlist.length){
+    html+=`<div class="ez-section-hdr">Today's Watchlist</div>`;
+    html+=watchlist.map((r,i)=>buildEzpzCard(r,i)).join('');
+  }
+  if(individual.length){
+    if(watchlist.length)html+=`<div style="margin-top:24px"></div>`;
+    html+=`<div class="ez-section-hdr">Individual Analysis</div>`;
+    html+=individual.map((r,i)=>buildEzpzCard(r,i)).join('');
+  }
+  el.innerHTML=html;
+}
+
+const PLAYBOOK_SECTIONS = [
+  {
+    id:1,
+    title:'Leaderboard Setup & Filtering',
+    body:`
+<h3>1.1 Where to Look</h3>
+<ul>
+  <li><strong>Primary scan:</strong> <code>ezpztrading.com/stocks/stock/short-interest-leaderboard/</code></li>
+  <li><strong>Single-ticker drilldown:</strong> <code>/stocks/stock/short-interest/?symbol=TICKER</code> — time-series history + <strong>Synthetic Signal</strong> column (EXTREME / BONA FIDE) that isn't shown on the leaderboard.</li>
+  <li><strong>Intraday confirmation:</strong> <code>/stocks/stock/short-volume/</code> — today's short-volume as % of total. Falling % during a rally = <strong>shorts covering</strong> = squeeze in progress.</li>
+  <li><strong>Trend chart:</strong> <code>/stocks/stock/short-volume-chart/</code></li>
+  <li><strong>Dark pool cross-check:</strong> <code>/stocks/darkpool/top-level/</code></li>
+</ul>
+
+<h3>1.2 Default Filter Bar</h3>
+<table>
+  <thead><tr><th>Filter</th><th>Default</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Official Short Interest Above</td><td>8%</td><td>Floor — anything below is noise</td></tr>
+    <tr><td>Market Cap Above</td><td>5M</td><td>Avoid dead microcaps with no buyers</td></tr>
+    <tr><td>Avg Volume Above</td><td>1M</td><td>Must be tradable — you need liquidity to exit</td></tr>
+    <tr><td>Relative Volume Above</td><td>0%</td><td>Raise to 150%+ when hunting intraday movers</td></tr>
+  </tbody>
+</table>
+
+<h3>1.3 Column Reading Priority</h3>
+<p>14 columns — do NOT scan left to right. Read in this order:</p>
+<table>
+  <thead><tr><th>#</th><th>Column</th><th>Ideal for a LONG squeeze play</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>Utilization %</strong></td><td>≥ 90% (ideal ≥ 95%) — master pressure gauge</td></tr>
+    <tr><td>2</td><td>Borrow Rate %</td><td>≥ 20% interesting, ≥ 50% fuel, ≥ 100% desperate</td></tr>
+    <tr><td>3</td><td>Official Short Interest %</td><td>≥ 20% min, ≥ 40% heavy, ≥ 100% float shorted multiple times</td></tr>
+    <tr><td>4</td><td>Days to Cover</td><td>≥ 3 days — squeeze sweet spot</td></tr>
+    <tr><td>5</td><td>Short Position Change %</td><td>See 1.5 — direction matters more than magnitude</td></tr>
+    <tr><td>6</td><td>Synthetic Short / Float</td><td>≥ 150% structural, ≥ 300% extreme</td></tr>
+    <tr><td>7</td><td>FTDs %</td><td>Rising = delivery stress building</td></tr>
+    <tr><td>8</td><td>Available to Short</td><td>Low / falling = shorts can't stack any more</td></tr>
+    <tr><td>9</td><td>Synthetic Short Value ($)</td><td>Size of the pressure in dollars</td></tr>
+    <tr><td>10</td><td>Official Short Position</td><td>Sanity check against DTC</td></tr>
+  </tbody>
+</table>
+
+<h3>1.4 Utilization — The Primary Filter</h3>
+<p>Utilization is a composite: % of available borrow already lent + borrow rate + FTD pressure + Reg SHO + SI.</p>
+<table>
+  <thead><tr><th>Level</th><th>Read</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>&lt; 70%</td><td>Room to add shorts</td><td>Ignore</td></tr>
+    <tr><td>70–89%</td><td>Building pressure</td><td>Watchlist only</td></tr>
+    <tr><td>90–94%</td><td>Prime hunting zone</td><td>Add to shortlist</td></tr>
+    <tr><td>95–99%</td><td>Loaded gun</td><td><strong>Primary candidates</strong></td></tr>
+    <tr><td>100%</td><td>Borrow cooked</td><td>Any buy catalyst detonates</td></tr>
+  </tbody>
+</table>
+<blockquote><strong>Rule:</strong> Never long a squeeze play with Utilization &lt; 85%. No clears? No trade. Walk away.</blockquote>
+
+<h3>1.5 Short Position Change % — The Tell</h3>
+<table>
+  <thead><tr><th>Reading</th><th>Interpretation</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>Rising +20% to +100%</td><td>Shorts aggressively adding</td><td><strong>Best setup</strong> — lots of fuel</td></tr>
+    <tr><td>Rising &gt; +300%</td><td>Overcrowded / headline-driven</td><td>Danger zone — size smaller</td></tr>
+    <tr><td>Flat / small +</td><td>Position stable, no new fuel</td><td>Pass unless Util &gt; 95%</td></tr>
+    <tr><td>Negative</td><td>Shorts already covering</td><td><strong>Late</strong> — wait for rebase</td></tr>
+  </tbody>
+</table>
+
+<h3>1.6 The 10-Minute Shortlist (3–5 Names)</h3>
+<ol>
+  <li>Load leaderboard with default filters.</li>
+  <li>Mentally sort by <strong>Utilization %</strong>, take top 20.</li>
+  <li>Eliminate dead liquidity (MC &lt; $50M AND Avg Vol &lt; 500K) + any upcoming earnings.</li>
+  <li>Keep only names with SPC% rising +10% to +100%.</li>
+  <li>Check single-ticker page — <strong>Synthetic Signal = EXTREME</strong> for 2+ periods.</li>
+  <li>Pull 4H TradingView — keep names that are flat, rebasing, or breaking a multi-week downtrend.</li>
+  <li>Final 3–5, ranked by Util ÷ DTC. That's today's squeeze watchlist.</li>
+</ol>
+`
+  },
+  {
+    id:2,
+    title:'Chart Analysis (4HR Timeframe)',
+    body:`
+<blockquote><strong>Why 4H?</strong> 1D too slow — you miss the explosive entry. 1H too noisy for the base-read. 4H gives 6 bars per NY session — enough resolution to see structure without getting chopped.</blockquote>
+
+<h3>2.1 Reading Time Dilation</h3>
+<p>Time Dilation is a regime/compression indicator. Watch this sequence on the 4H:</p>
+<ol>
+  <li><strong>Extended compression</strong> (orange/red) during the downtrend — volatility bleeding as sellers exhaust.</li>
+  <li><strong>First flip to green</strong> = wake-up call, NOT an entry.</li>
+  <li><strong>4H candle closes above the most recent swing high</strong> with Dilation still green = the breakout trigger.</li>
+</ol>
+
+<h4>Valid Breakout</h4>
+<ul>
+  <li>Close above prior 4H swing high by <strong>&gt; 0.3 × ATR(10)</strong>.</li>
+  <li>Dilation green and <strong>widening</strong> (expanding regime, not compressing).</li>
+  <li>Volume on breakout bar <strong>&gt; 1.5× 20-bar average</strong>.</li>
+</ul>
+
+<h4>Fake-out (the UCAR Example)</h4>
+<ul>
+  <li>Price pokes above swing high intrabar but <strong>closes back inside</strong> the prior range.</li>
+  <li><strong>RSI hits upper Bollinger band and immediately rejects</strong> — wicks into upper BB, closes below mid-band.</li>
+  <li>Dilation flickers green then snaps back to neutral/red next bar.</li>
+  <li>Volume on the poke bar is <em>below</em> average — no commitment.</li>
+</ul>
+<blockquote class="pb-callout-danger"><strong>UCAR rule:</strong> If RSI tags upper BB and the SAME bar closes in the lower half of its range, the breakout is dead. Do not retry same bar. Wait for a full 4H close back above the band.</blockquote>
+
+<h3>2.2 Rebase vs Rollover</h3>
+<h4>Rebase (continuation)</h4>
+<ul>
+  <li>After first squeeze leg, price consolidates in the <strong>upper third</strong> of the move.</li>
+  <li>Pullbacks hold above 4H 20EMA AND VWAP.</li>
+  <li>RSI works off overbought via <em>time</em>, not price (flat while price grinds sideways).</li>
+  <li>Volume dries up during the base — shorts trapped, not covered.</li>
+</ul>
+<h4>Rollover (do not long)</h4>
+<ul>
+  <li>Lower high within 2–3 bars of initial push.</li>
+  <li>RSI makes a clear lower high.</li>
+  <li>Dilation flips back to red.</li>
+  <li>Volume spikes on red bars — distribution.</li>
+</ul>
+
+<h3>2.3 Ideal 4H Long Setup — Checklist</h3>
+<pre>    ___
+   /   \\___          <- rebase (tight, 3-6 bars in upper third)
+  /        \\____/\\___  <- breakout above range high, Dilation green, volume > 1.5x
+ /
+/___________________   <- prior multi-week downtrend broken</pre>
+<ul>
+  <li>☐ Prior downtrend line broken on a 4H close</li>
+  <li>☐ Time Dilation green and expanding</li>
+  <li>☐ 4H close &gt; prior swing high by &gt; 0.3 × ATR(10)</li>
+  <li>☐ Volume on breakout bar &gt; 1.5 × 20-bar avg</li>
+  <li>☐ RSI between 55–70 (strong, not yet exhausted)</li>
+  <li>☐ 4H 20EMA sloping up</li>
+</ul>
+
+<h3>2.4 What Invalidates</h3>
+<ul>
+  <li>4H close <strong>below</strong> the breakout level → setup dead, no re-entry same day.</li>
+  <li>Time Dilation flips red within 2 bars of entry → close immediately.</li>
+  <li>News catalyst you hadn't priced in → exit first, ask questions later.</li>
+  <li>4H bearish engulfing on volume &gt; breakout bar → full invalidation.</li>
+</ul>
+`
+  },
+  {
+    id:3,
+    title:'Entry Refinement (15m / 1H)',
+    body:`
+<blockquote><strong>Workflow.</strong> 4H tells you <strong>what</strong> to trade and <strong>in which direction</strong>. 15m/1H tells you <strong>when</strong> and <strong>at what price</strong>.</blockquote>
+
+<h3>3.1 Multi-Timeframe S/R</h3>
+<p>Load MTF S/R on 15m showing 1H and 4H levels.</p>
+<ul>
+  <li><strong>Ideal entry zone:</strong> 15m price pulling back into the <strong>prior 4H resistance that just broke</strong> (now support). The "first touch back-test".</li>
+  <li><strong>Invalid entry:</strong> Buying INTO 4H resistance from below, before the 4H has closed through it. That's chasing.</li>
+</ul>
+
+<h3>3.2 Market Regime Confirmation</h3>
+<table>
+  <thead><tr><th>15m</th><th>1H</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>Bullish</td><td>Bullish</td><td><strong>Full size</strong> — green light</td></tr>
+    <tr><td>Bullish</td><td>Neutral</td><td>Half size, tight stop</td></tr>
+    <tr><td>Bullish</td><td>Bearish</td><td>Pass — squeeze hasn't propagated up yet</td></tr>
+    <tr><td>Bearish</td><td>Any</td><td>Pass — wait for flip</td></tr>
+  </tbody>
+</table>
+
+<h3>3.3 VWAP as Entry Trigger</h3>
+<p>On heavily shorted names, VWAP is the algo reference line. Shorts cover into VWAP reclaims.</p>
+<p><strong>Entry trigger (all three required):</strong></p>
+<ol>
+  <li>15m candle closes <strong>above session VWAP</strong> after pulling back to it.</li>
+  <li>Next 15m candle <strong>holds above VWAP</strong> (no wick rejection back below).</li>
+  <li><strong>Short-volume % falling intraday</strong> (check <code>/stocks/stock/short-volume/</code>) — confirms covering.</li>
+</ol>
+<p><strong>Stop:</strong> below the VWAP reclaim bar low, OR 1 × ATR(15m, 14) below entry — whichever is <strong>tighter</strong>.</p>
+
+<h3>3.4 Time Dilation on 15m</h3>
+<ul>
+  <li>15m Dilation <strong>green at entry</strong>.</li>
+  <li>15m Dilation flipped green <strong>more recently than 4H</strong> — lower TF momentum syncing with higher TF regime.</li>
+  <li>15m red + 4H green = mid-pullback. Wait for 15m flip or pass.</li>
+</ul>
+
+<h3>3.5 Confluence Score (≥ 4/5 required)</h3>
+<table>
+  <thead><tr><th>Signal</th><th>Met?</th></tr></thead>
+  <tbody>
+    <tr><td>4H: closed breakout, Dilation green, RSI 55–70</td><td>☐</td></tr>
+    <tr><td>MTF S/R: pulling back to reclaimed 4H level</td><td>☐</td></tr>
+    <tr><td>Market Regime bullish on both 15m and 1H</td><td>☐</td></tr>
+    <tr><td>VWAP reclaim + hold on 15m</td><td>☐</td></tr>
+    <tr><td>Short volume % falling intraday (EZPZ)</td><td>☐</td></tr>
+  </tbody>
+</table>
+<p><strong>5/5</strong> = full size. <strong>4/5</strong> = half size. <strong>≤ 3/5</strong> = pass.</p>
+`
+  },
+  {
+    id:4,
+    title:'Trade Management',
+    body:`
+<h3>4.1 Hold Time</h3>
+<ul>
+  <li><strong>Default:</strong> Intraday scalp to 1-day hold. Squeeze names rarely give clean multi-day trends.</li>
+  <li><strong>Extended (1–2 days):</strong> Only if 4H closes above breakout two bars running with rising volume AND short-vol % still falling AND stop is at BE or better.</li>
+  <li><strong>Never &gt; 3 days</strong> without re-scanning EZPZ to confirm Utilization still ≥ 90%. Drop from 95 → 75% = covering done = exit.</li>
+</ul>
+
+<h3>4.2 Position Sizing</h3>
+<p>Squeeze names are <strong>beta 3–5</strong> vs market. Size accordingly.</p>
+<ul>
+  <li><strong>Max risk per trade:</strong> 0.5% of account (half of normal swing size).</li>
+  <li><strong>Max notional per name:</strong> 5% of account.</li>
+  <li><strong>Max combined notional:</strong> 15% of account across all active squeeze plays.</li>
+  <li><strong>Never average down</strong> on a losing squeeze long. Shorts are rational on entries, irrational on exits — if wrong, you are <em>very</em> wrong.</li>
+</ul>
+
+<h3>4.3 Stops</h3>
+<blockquote class="pb-callout-danger">Squeeze stocks spike then immediately sell off — the classic "morning squeeze, afternoon fade". Stops must account for this.</blockquote>
+<ul>
+  <li><strong>Hard stop:</strong> entry − (1 × 15m ATR(14)) OR below VWAP reclaim bar — whichever is tighter.</li>
+  <li><strong>Mental stop:</strong> 15m Dilation flips back to red → exit at next bar open, don't wait for hard stop.</li>
+  <li><strong>Time stop:</strong> entry bar +6 bars (15m) no new high → reduce 50%. +12 bars still no new high → full exit.</li>
+</ul>
+<blockquote class="pb-callout-danger"><strong>Critical:</strong> Do NOT widen your stop because "it's just a wick". Squeeze stocks wick -5% then go -15%. Your stop is your stop.</blockquote>
+
+<h3>4.4 Profit Taking</h3>
+<p>These stocks reward <strong>aggressive scaling</strong>, not held targets.</p>
+<ul>
+  <li><strong>+1R:</strong> trim 1/3. Move stop to breakeven on the rest.</li>
+  <li><strong>+2R:</strong> trim another 1/3. Trail remainder under 15m 20EMA.</li>
+  <li><strong>Final 1/3:</strong> trail under each new 15m swing low OR exit on 15m close below VWAP — whichever first.</li>
+  <li><strong>Never raise a target mid-trade.</strong> Greed is the #1 killer on squeezes.</li>
+</ul>
+
+<h3>4.5 Knowing When the Squeeze is Done</h3>
+<p>Exit ALL units on ANY of:</p>
+<ul>
+  <li>Utilization % drops &gt; 10 points on next EZPZ update.</li>
+  <li>Short Position Change % flips negative by more than -15%.</li>
+  <li>Synthetic Signal drops from EXTREME → BONA FIDE.</li>
+  <li>Short volume % falls below 40% for 2 consecutive days.</li>
+  <li>4H closes below the breakout level.</li>
+</ul>
+`
+  },
+  {
+    id:5,
+    title:'Risk Warnings & Behavioural Rules',
+    body:`
+<h3>5.1 Why These Stocks Behave Irrationally</h3>
+<p>Heavily shorted stocks are <strong>not trading on fundamentals</strong>. Price is being set by:</p>
+<ol>
+  <li>Margin calls forcing shorts to cover at any price → vertical spikes.</li>
+  <li>Short-sellers adding when price pops → immediate fades after pops.</li>
+  <li>Retail flow piling in on any green bar → false confirmation.</li>
+  <li>Options hedging amplifying both directions (gamma squeezes + gamma flushes).</li>
+  <li>Borrow availability changing in real time — a hard-to-borrow notice can flip the tape in minutes.</li>
+</ol>
+<blockquote>You are not trading a company. You are trading a <strong>liquidity crisis for shorts</strong>. Treat it as such.</blockquote>
+
+<h3>5.2 Common Mistakes</h3>
+<ul>
+  <li>❌ Chasing the first 4H bar before it has closed. Wait for the close.</li>
+  <li>❌ Sizing up because "this one feels different". They never do.</li>
+  <li>❌ Ignoring Utilization drop because the chart still looks bullish. The chart lags the data.</li>
+  <li>❌ Adding on the pullback after first profit-take. That's trading against your plan.</li>
+  <li>❌ Holding through earnings. Squeeze names round-trip on earnings regardless.</li>
+  <li>❌ Going short the fade. Borrow is expensive/nonexistent — reverse squeezes are brutal.</li>
+  <li>❌ Market orders at the open. Spreads on squeeze names can be 2–3%. Limit only.</li>
+</ul>
+
+<h3>5.3 Hard Rules — Every Trade, No Exceptions</h3>
+<ol>
+  <li><strong>Never hold through an earnings release.</strong> Flatten by the close of the prior session.</li>
+  <li><strong>Never lift your stop.</strong> You can trail it tighter, never wider.</li>
+  <li><strong>Never trade the same name twice the same day</strong> if the first trade stopped out.</li>
+  <li><strong>Never enter before 15 minutes after the open.</strong> Let price find VWAP first.</li>
+  <li><strong>Never enter in the last 30 minutes</strong> unless exiting an existing profitable position.</li>
+  <li><strong>Never trade more than 3 squeeze names at once.</strong> Correlation across HTB names is near 1.0 on macro days.</li>
+  <li><strong>Always re-scan EZPZ</strong> the morning of any holding day. Data flipped → you flip.</li>
+  <li><strong>Always write the trade plan</strong> (entry, stop, target, time stop) before clicking buy. Can't write it? You don't have a trade.</li>
+</ol>
+`
+  },
+  {
+    id:6,
+    title:'Full Worked Example',
+    body:`
+<blockquote>Hypothetical ticker: <strong>SQZR</strong> (fictional). All numbers illustrative.</blockquote>
+
+<h3>Step 1 — Leaderboard Scan (09:25 ET)</h3>
+<table>
+  <thead><tr><th>Rank</th><th>Ticker</th><th>SI%</th><th>SPC%</th><th>DTC</th><th>Syn/Float</th><th>Borrow</th><th>Util</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>OTHR</td><td>48%</td><td>+12%</td><td>2.1</td><td>180%</td><td>28%</td><td>91%</td></tr>
+    <tr><td><strong>2</strong></td><td><strong>SQZR</strong></td><td><strong>38%</strong></td><td><strong>+62%</strong></td><td><strong>4.3</strong></td><td><strong>245%</strong></td><td><strong>72%</strong></td><td><strong>97%</strong></td></tr>
+    <tr><td>3</td><td>THRD</td><td>55%</td><td>+5%</td><td>1.2</td><td>150%</td><td>110%</td><td>94%</td></tr>
+  </tbody>
+</table>
+<p>SQZR flagged: Util 97%, SPC +62% (aggressive add), DTC 4.3 (plenty of fuel), Syn/Float 245%, Borrow 72%.</p>
+<p>Drilldown to <code>/stocks/stock/short-interest/?symbol=SQZR</code>:</p>
+<ul>
+  <li>Synthetic Signal = <strong>EXTREME</strong> for 3 consecutive periods.</li>
+  <li>Reg SHO = Y (on threshold list).</li>
+  <li>Available to Short falling: 120K → 45K → 8K over last three reports.</li>
+</ul>
+<p>Earnings: none in next 3 weeks. <strong>SQZR on shortlist.</strong></p>
+
+<h3>Step 2 — 4H Chart Read (09:30–09:45 ET)</h3>
+<ul>
+  <li>Price: $4.80, flat-to-rebasing last 8 bars in $4.40–$4.90 zone.</li>
+  <li>Prior 4H swing high: <strong>$4.92</strong>.</li>
+  <li>Time Dilation: green 2 bars ago, expanding.</li>
+  <li>4H 20EMA sloping up at $4.55.</li>
+  <li>Prior multi-week downtrend line broken 2 sessions ago at $4.20.</li>
+  <li>RSI(14) on 4H: 62.</li>
+</ul>
+<p><strong>4H thesis confirmed.</strong> Trigger = 4H close above $4.92 with volume &gt; 1.5× avg.</p>
+
+<h3>Step 3 — 15m Entry Refinement</h3>
+<ul>
+  <li><strong>10:15 ET:</strong> SQZR runs to $4.98 intraday. Not yet a 4H close.</li>
+  <li><strong>11:00 ET:</strong> 15m pulls back to $4.85 — lands on VWAP + old $4.82 S/R level.</li>
+  <li><strong>11:15 ET:</strong> 15m closes $4.93 above VWAP. 15m Dilation flips green.</li>
+  <li><strong>11:30 ET:</strong> next 15m holds $4.91, closes $4.96. <strong>VWAP reclaim confirmed.</strong></li>
+  <li>Short-vol % today: 38% vs 62% avg prior 5 days. <strong>Covering confirmed.</strong></li>
+  <li>1H Regime: bullish (just flipped). 15m Regime: bullish.</li>
+</ul>
+<p><strong>Confluence 5/5. Full size.</strong></p>
+
+<h3>Step 4 — Entry</h3>
+<ul>
+  <li><strong>Entry:</strong> $4.96 (limit, mid confirmation 15m close).</li>
+  <li><strong>Hard stop:</strong> $4.78 (below VWAP bar low $4.82 minus $0.04 buffer). Risk = $0.18/share = 3.6% of entry.</li>
+  <li><strong>Time stop:</strong> no new high by 14:30 ET → reduce 50%. Still none by 15:15 ET → full exit.</li>
+  <li><strong>Target 1:</strong> +1R = $5.14 (trim 1/3).</li>
+  <li><strong>Target 2:</strong> +2R = $5.32 (trim 1/3).</li>
+  <li><strong>Runner:</strong> trail under 15m 20EMA.</li>
+</ul>
+<p><strong>Sizing.</strong> Account $100K. Max risk 0.5% = $500. Shares = $500 ÷ $0.18 = 2,777. Notional = $13.8K = 13.8% — above 5% cap. <strong>Cap size at $5K notional = 1,008 shares.</strong> Risk becomes $181 (0.18%). Take smaller size, stay in the game.</p>
+
+<h3>Step 5 — Management</h3>
+<ul>
+  <li><strong>12:30 ET:</strong> hits $5.14 → trim 1/3 (336 shares, +$60). Stop to BE on remainder.</li>
+  <li><strong>13:45 ET:</strong> hits $5.35 → trim 1/3 (336 shares, +$131). Stop trailed to 15m 20EMA at $5.12.</li>
+  <li><strong>14:30 ET:</strong> 15m closes below VWAP at $5.15. Final 1/3 stopped at $5.12 (+$161).</li>
+</ul>
+
+<h3>Step 6 — Exit &amp; Post-Trade</h3>
+<ul>
+  <li><strong>Total P&amp;L:</strong> +$60 + $131 + $161 = <strong>+$352</strong> on $181 risk = <strong>+1.9R</strong>.</li>
+  <li>Post-session: if SQZR Util back to 93% tomorrow — re-eval for another leg. If drops to 82% — squeeze done, off watchlist.</li>
+  <li>Journal: 5/5 confluence + tight risk discipline + scaling out. Repeat: the VWAP pullback was the textbook entry.</li>
+</ul>
+
+<hr>
+<h3>Quick Reference Card</h3>
+<table>
+  <thead><tr><th>Phase</th><th>Action</th><th>Pass if</th></tr></thead>
+  <tbody>
+    <tr><td>Scan</td><td>EZPZ leaderboard, default filters</td><td>Util ≥ 90% AND SPC% &gt; 0 AND Syn/Float &gt; 150%</td></tr>
+    <tr><td>Drilldown</td><td>Single-ticker page</td><td>Synth Signal EXTREME ≥ 2 periods; no earnings</td></tr>
+    <tr><td>4H</td><td>Chart check</td><td>Breakout closed, Dilation green, vol &gt; 1.5× avg, RSI 55–70</td></tr>
+    <tr><td>15m</td><td>Entry refine</td><td>VWAP reclaim + hold, Regime bull both TFs, Short-vol% falling</td></tr>
+    <tr><td>Entry</td><td>Limit order</td><td>Only if confluence ≥ 4/5</td></tr>
+    <tr><td>Stop</td><td>Immediate</td><td>1× 15m ATR below entry OR below reclaim bar low (tighter)</td></tr>
+    <tr><td>Manage</td><td>Scale out</td><td>+1R trim 1/3 (BE), +2R trim 1/3, trail last third</td></tr>
+    <tr><td>Exit</td><td>Mandatory</td><td>4H close below trigger, Dilation red 2 bars, Util drops &gt; 10 pts</td></tr>
+  </tbody>
+</table>
+`
+  }
+];
+
+function togglePbSection(id){
+  const el=document.getElementById('pb-sec-'+id);
+  if(!el)return;
+  el.classList.toggle('open');
+}
+function pbExpandAll(){
+  PLAYBOOK_SECTIONS.forEach(s=>{const el=document.getElementById('pb-sec-'+s.id);if(el)el.classList.add('open');});
+}
+function pbCollapseAll(){
+  PLAYBOOK_SECTIONS.forEach(s=>{const el=document.getElementById('pb-sec-'+s.id);if(el)el.classList.remove('open');});
+}
+
+function renderPlaybook(){
+  const el=document.getElementById('tab-playbook');
+  const sections=PLAYBOOK_SECTIONS.map((s,i)=>{
+    const openClass=i===0?' open':'';
+    return `<div id="pb-sec-${s.id}" class="pb-section${openClass}" style="animation-delay:${i*50}ms">
+      <button class="pb-toggle" onclick="togglePbSection(${s.id})">
+        <span><span class="pb-num">SECTION ${s.id}</span>${s.title}</span>
+        <span class="pb-chev">▼</span>
+      </button>
+      <div class="pb-body"><div class="pb-content">${s.body}</div></div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="pb-header">
+    <div class="pb-subtitle">◆ Short Squeeze Playbook</div>
+    <div class="pb-title">Long Side · 4HR Breakouts · Intraday Entry</div>
+    <div class="pb-thesis"><strong>Thesis.</strong> Stocks carrying extreme short pressure have a structural fuel source — forced buying when shorts cover. Find names where fuel has stacked up (EZPZ data), wait for the market to validate a turn (4HR breakout), time entry tightly on 15m/1H via VWAP, Market Regime, MTF S/R. Heavily shorted tickers move <strong>violently in both directions</strong> — setup selection and stop discipline are everything.</div>
+  </div>
+  <div class="pb-expand-all">
+    <button class="pb-expand-btn" onclick="pbExpandAll()">EXPAND ALL</button>
+    <button class="pb-expand-btn" onclick="pbCollapseAll()">COLLAPSE ALL</button>
+  </div>
+  ${sections}
+  <div class="pb-footer">Sourced from EZPZ short-interest data + TradingView custom stack<br>(Time Dilation · Market Regime · MTF S/R · VWAP · Trinity RSI) — last updated 2026-04-21</div>`;
+}
+
+function getWeekTitle(){
+  if(!DAYS_ORDER.length)return'This Week';
+  const first=new Date(DAYS_ORDER[0]+'T12:00:00');
+  const last=new Date(DAYS_ORDER[DAYS_ORDER.length-1]+'T12:00:00');
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const y=last.getFullYear();
+  if(first.getMonth()===last.getMonth())return`${first.getDate()}–${last.getDate()} ${M[last.getMonth()]} ${y}`;
+  return`${first.getDate()} ${M[first.getMonth()]} – ${last.getDate()} ${M[last.getMonth()]} ${y}`;
+}
+
+function renderWeek(){
+  const el=document.getElementById('tab-week');
+  const allT=[];
+  DAYS_ORDER.forEach(k=>ALL_DAYS_DATA.days[k].tickers.forEach(t=>allT.push({...t,dayKey:k})));
+  const strong=allT.filter(t=>t.verdict==='STRONG');
+  const strongProfit=strong.filter(t=>t.pnlDollar>0).length;
+  const strongAcc=strong.length?`${strongProfit} / ${strong.length}`:'—';
+  const tcpCount=DAYS_ORDER.reduce((s,k)=>s+(ALL_DAYS_DATA.days[k].signals||[]).filter(sig=>sig.source&&sig.source.includes('TCP')).length,0);
+  const rrVals=allT.map(t=>t.rrRatio).filter(v=>v!=null);
+  const avgRR=rrVals.length?(rrVals.reduce((a,b)=>a+b,0)/rrVals.length).toFixed(2):'—';
+  const profitable=allT.filter(t=>t.pnlDollar>0).length;
+  const best=allT.length?allT.reduce((a,b)=>b.pnlPct>a.pnlPct?b:a,allT[0]):null;
+  const worst=allT.length?allT.reduce((a,b)=>b.pnlPct<a.pnlPct?b:a,allT[0]):null;
+  const dayRows=DAYS_ORDER.map(k=>{
+    const d=ALL_DAYS_DATA.days[k];
+    const st=d.tickers.filter(t=>t.verdict==='STRONG').length;
+    const wk=d.tickers.filter(t=>t.verdict==='WEAK').length;
+    const av=d.tickers.filter(t=>t.verdict==='AVOID').length;
+    const tList=d.tickers.map(t=>`<span style="color:${t.verdict==='STRONG'?'var(--accent-green)':t.verdict==='AVOID'?'var(--accent-red)':'var(--text2)'}">${t.ticker}</span>`).join(' ');
+    return`<div class="day-row"><div class="day-date">${d.label.replace(' ','\n')}</div><div><div class="day-tickers">${tList}</div><div class="day-badges"><span class="badge b-strong">${st} STRONG</span><span class="badge b-weak">${wk} WEAK</span>${av?`<span class="badge b-avoid">${av} AVOID</span>`:''}</div></div></div>`;
+  }).join('');
+  el.innerHTML=`
+<div class="week-hdr"><span class="week-title">Week of ${getWeekTitle()}</span>
+<div class="week-stats">
+  <div class="ws"><span class="ws-val">${allT.length}</span><span class="ws-lbl">Signals</span></div>
+  <div class="ws"><span class="ws-val">0</span><span class="ws-lbl">Closed</span></div>
+  <div class="ws"><span class="ws-val">${allT.length?Math.round(profitable/allT.length*100):0}%</span><span class="ws-lbl">Profitable</span></div>
+</div></div>
+<div class="section-title" style="margin-bottom:8px">Day by Day</div>
+${dayRows}
+${best?`<div class="section-title" style="margin:16px 0 8px">Top Performer This Week</div>
+<div class="week-best"><span class="wb-lbl">Best Open Trade</span><span class="wb-ticker">${best.ticker}</span><span class="wb-pnl">${best.pnlPct>=0?'+':''}${fmt(best.pnlPct)}% (${best.pnlDollar>=0?'+':''}$${fmt(best.pnlDollar)})</span><span class="wb-detail">Entry ${fmtP(best.entry)} · ${best.direction} · ${best.verdict}</span></div>`:''}
+<div class="section-title" style="margin-bottom:8px">Patterns &amp; Observations</div>
+<div class="pattern-card"><span class="pt-title">Week Signal Quality</span>
+<div class="pt-item"><span>STRONG calls currently profitable</span><span class="pt-val" style="color:var(--accent-green)">${strongAcc}</span></div>
+<div class="pt-item"><span>Trinity Cipher signals fired</span><span class="pt-val" style="color:var(--accent-green)">${tcpCount}</span></div>
+<div class="pt-item"><span>Avg R:R across all setups</span><span class="pt-val" style="color:var(--accent-green)">${avgRR}</span></div>
+${worst?`<div class="pt-item"><span>Worst open — ${worst.ticker} ${worst.direction}</span><span class="pt-val" style="color:var(--accent-red)">${worst.pnlPct>=0?'+':''}${fmt(worst.pnlPct)}%</span></div>`:''}
+${best&&best!==worst?`<div class="pt-item"><span>Best open — ${best.ticker} ${best.direction}</span><span class="pt-val" style="color:var(--accent-green)">+${fmt(best.pnlPct)}%</span></div>`:''}
+</div>`;
+}
+
+function switchDay(k){
+  currentDayKey=k;
+  localStorage.setItem('oliver_day',k);
+  renderDateStrip();
+  const d=ALL_DAYS_DATA.days[k];
+  if(d)document.getElementById('hdr-date').textContent=d.date;
+  if(currentNavTab==='setups')renderSetups();
+  else if(currentNavTab==='signals')renderSignals();
+}
+
+function switchNav(id){
+  currentNavTab=id;
+  localStorage.setItem('oliver_nav',id);
+  ALL_TAB_IDS.forEach(x=>document.getElementById('tab-'+x).classList.toggle('hidden',x!==id));
+  renderNav();
+  if(id==='setups')renderSetups();
+  else if(id==='perf')renderPerf();
+  else if(id==='signals')renderSignals();
+  else if(id==='rsiscan')renderRsiScan();
+  else if(id==='week')renderWeek();
+  else if(id==='ezpz')renderEzpz();
+  else if(id==='playbook')renderPlaybook();
+}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('hdr-time').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  const sess=getMarketSession();
+  const sp=document.getElementById('session-pill');
+  if(sp){sp.textContent=sess.label;sp.className='session-pill '+sess.cls;}
+}
+
+function init(){
+  const savedDay=localStorage.getItem('oliver_day');
+  const savedNav=localStorage.getItem('oliver_nav');
+  if(savedDay&&ALL_DAYS_DATA.days[savedDay])currentDayKey=savedDay;
+  if(savedNav&&ALL_TAB_IDS.includes(savedNav))currentNavTab=savedNav;
+  updateClock();
+  const d=ALL_DAYS_DATA.days[currentDayKey];
+  if(d)document.getElementById('hdr-date').textContent=d.date;
+  renderDateStrip();
+  renderNav();
+  ALL_TAB_IDS.forEach(x=>document.getElementById('tab-'+x).classList.toggle('hidden',x!==currentNavTab));
+  if(currentNavTab==='setups')renderSetups();
+  else if(currentNavTab==='perf')renderPerf();
+  else if(currentNavTab==='signals')renderSignals();
+  else if(currentNavTab==='rsiscan')renderRsiScan();
+  else if(currentNavTab==='week')renderWeek();
+  else if(currentNavTab==='ezpz')renderEzpz();
+  else if(currentNavTab==='playbook')renderPlaybook();
+  setInterval(updateClock,30000);
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
