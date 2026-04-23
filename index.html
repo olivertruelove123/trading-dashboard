@@ -452,6 +452,43 @@ const EZPZ_INDIVIDUAL = [
       {signal:"Earnings",source:"Lookup",score:"NEUTRAL",detail:"ETF — no earnings (N/A)"},
       {signal:"TradingView Chart",source:"TCP",score:"BEARISH",detail:"SELL signal (purple diamond) on 1D"}
     ]
+  },
+  {
+    ticker:"AMD",
+    analysedAt:"2026-04-23",
+    displayDate:"Apr 23, 2026",
+    price:307.69,
+    direction:"LONG",
+    verdict:"BULLISH",
+    conviction:"8/17 Bullish",
+    bullish:8,
+    bearish:6,
+    neutral:2,
+    caution:1,
+    entry:307,
+    stop:295,
+    target:320,
+    earnings:"~Apr 28-29 — CAUTION ⚠️ IMMEDIATE",
+    biasNote:"Split signals with a lean bullish — money flow clearly bullish (call buying 3.4x put buying, DP accumulation at $304-305, cumulative volume positive). Price sits below Call Wall $310 with room to run and dark pool support at $304-305. Counterweights: overall OI is put-heavy (PCR 1.21, C/P 0.93), GEX is positive (pinning at $295-320 range), IVx expensive at 71%. Dominant risk: earnings Apr 28-29 (5-6 days) — GEX pins AMD near max pain $305-308. If trading pre-earnings, size very small targeting $310 Call Wall. Best entry is post-earnings print once direction confirmed.",
+    signals:[
+      {signal:"Net Premium Flow (PCR OI)",source:"Tab A",score:"BEARISH",detail:"PCR 1.21 — Put OI 170K > Call OI 140K"},
+      {signal:"PCR Near-term Vol",source:"Tab B",score:"BEARISH",detail:"Apr 24 call/put vol ratio 0.19 — heavy put volume near-term"},
+      {signal:"IVx Skew",source:"Tab A",score:"BULLISH",detail:"+4.12% — calls pricier than puts"},
+      {signal:"IVx Level",source:"Tab A",score:"BEARISH",detail:"71.09% — expensive (>60%)"},
+      {signal:"PCR by Expiry (swing window)",source:"Tab B",score:"BEARISH",detail:"Put-heavy across May 15-Jun 18; C/P ratios 0.58-0.86"},
+      {signal:"GEX Environment",source:"Tab C",score:"BEARISH",detail:"Net GEX +266.9M — positive = pinning, not trending"},
+      {signal:"Price vs Call/Put Wall",source:"Tab C",score:"BULLISH",detail:"Price $307.7 below Call Wall $310 — room to run"},
+      {signal:"Short Interest",source:"Tab E",score:"NEUTRAL",detail:"7% float, rising +13%, DTC 1.05, borrow 0%"},
+      {signal:"Money Sentiment Net $",source:"Tab F",score:"BULLISH",detail:"Call Bought $147.3M vs Put Bought $43.5M"},
+      {signal:"Money Sentiment vs 30d Avg",source:"Tab F",score:"BULLISH",detail:"Today Bullish $192.8M > 30d avg $179M"},
+      {signal:"Unusual Activity Sweeps",source:"Tab G",score:"NEUTRAL",detail:"No qualifying sweeps (14-60d, $500K+)"},
+      {signal:"OI Net Change",source:"Tab H",score:"BEARISH",detail:"Total OI put-heavy — C/P ratio 0.93"},
+      {signal:"OI Concentration",source:"Tab H",score:"BULLISH",detail:"Jun 18 (biggest expiry) calls 274K > puts 258K"},
+      {signal:"Dark Pool Imbalance",source:"Tab I",score:"BULLISH",detail:"NET BUY, cumulative volume positive"},
+      {signal:"Dark Pool Levels",source:"Tab I",score:"BULLISH",detail:"Accumulation cluster at $304-305 just below price"},
+      {signal:"Earnings",source:"Lookup",score:"CAUTION",detail:"~Apr 28-29 — 5-6 days away, immediate caution"},
+      {signal:"News Sentiment",source:"Tab A",score:"BULLISH",detail:"84% Bullish across articles"}
+    ]
   }
 ];
 /* EZPZ_INDIVIDUAL_END */
