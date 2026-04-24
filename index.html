@@ -235,6 +235,11 @@ input,select,textarea{font:inherit;color:inherit;background:none;border:none}
 .tc-conv-ring .track{stroke:var(--c-border);fill:none;stroke-width:3}
 .tc-conv-ring .fill{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset var(--dur-slow) var(--ease)}
 .tc-conv-ring .lbl{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:var(--t-xs);font-weight:700;color:var(--c-text)}
+.tc-stage-sel{background:var(--c-surface-2);border:1px solid var(--c-border);color:var(--c-text-secondary);font-family:var(--f-mono);font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 18px 3px 7px;border-radius:var(--r-xs);cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;text-transform:uppercase;background-image:linear-gradient(45deg,transparent 50%,var(--c-text-muted) 50%),linear-gradient(-45deg,transparent 50%,var(--c-text-muted) 50%);background-position:calc(100% - 10px) 55%,calc(100% - 6px) 55%;background-size:4px 4px,4px 4px;background-repeat:no-repeat;transition:border-color var(--dur) var(--ease),color var(--dur) var(--ease)}
+.tc-stage-sel:hover{color:var(--c-text);border-color:var(--c-border-emphasis)}
+.tc-stage-sel:focus{outline:none;border-color:var(--c-accent);color:var(--c-text)}
+.tc-stage-sel.overridden{border-color:var(--c-accent);color:var(--c-accent-hi)}
+.tc-stage-sel option{background:var(--c-surface-2);color:var(--c-text)}
 
 /* === TABLES === */
 .tbl-wrap{background:var(--c-surface-1);border:1px solid var(--c-border);border-radius:var(--r-lg);overflow:hidden;overflow-x:auto;margin-bottom:var(--s-4)}
@@ -1413,7 +1418,19 @@ function allTickers(){
   DAYS_ORDER.forEach(k=>ALL_DAYS_DATA.days[k].tickers.forEach(t=>a.push({...t,dayKey:k,dayLabel:ALL_DAYS_DATA.days[k].label})));
   return a;
 }
-function stageFor(t){
+const STAGE_OVERRIDE_KEY='oliver_stage_overrides';
+const STAGES=['WATCHING','ALERTED','ENTERED','MANAGING','CLOSED'];
+function stageOverrideMap(){return keyStore(STAGE_OVERRIDE_KEY)||{}}
+function stageOverrideKey(t){return `${t.dayKey||currentDayKey}__${t.ticker}`}
+function getStageOverride(t){return stageOverrideMap()[stageOverrideKey(t)]||null}
+function setStageOverride(dayKey,ticker,stage){
+  const m=stageOverrideMap();
+  const k=`${dayKey}__${ticker}`;
+  if(!stage||stage==='AUTO')delete m[k];
+  else m[k]=stage;
+  keySave(STAGE_OVERRIDE_KEY,m);
+}
+function derivedStageFor(t){
   if(t.status==='HIT TARGET')return'CLOSED';
   if(t.status==='STOPPED OUT')return'CLOSED';
   if(t.status==='EXPIRED')return'CLOSED';
@@ -1421,12 +1438,23 @@ function stageFor(t){
   if(t.status==='OPEN')return Math.abs(t.progressPct||0)>5?'ENTERED':'ALERTED';
   return'WATCHING';
 }
+function stageFor(t){
+  const ov=getStageOverride(t);
+  return ov||derivedStageFor(t);
+}
+function moveCardStage(dayKey,ticker,newStage,evt){
+  if(evt){evt.stopPropagation()}
+  setStageOverride(dayKey,ticker,newStage);
+  const label = (newStage==='AUTO' || !newStage) ? 'Auto (derived)' : newStage;
+  toast(`${ticker} → ${label}`,'success',1800);
+  if(currentNavTab==='setups')renderSetups();
+}
 
 function renderSetups(){
   const el=$('#tab-setups');if(!el)return;
   const day=ALL_DAYS_DATA.days[currentDayKey];
   if(!day){el.innerHTML=emptyState('No day selected','Pick a day above');return}
-  const tickers=day.tickers;
+  const tickers=day.tickers.map(t=>({...t,dayKey:currentDayKey}));
   const counts={STRONG:0,WEAK:0,AVOID:0,LONG:0,SHORT:0};
   tickers.forEach(t=>{counts[t.verdict]=(counts[t.verdict]||0)+1;counts[t.direction]=(counts[t.direction]||0)+1});
   const stageBuckets={WATCHING:[],ALERTED:[],ENTERED:[],MANAGING:[],CLOSED:[]};
@@ -1472,8 +1500,18 @@ function tickerCard(t){
   const convPct=(convN/convMax)*100;
   const convColor=t.verdict==='STRONG'?'var(--c-long)':t.verdict==='WEAK'?'var(--c-warn)':'var(--c-short)';
   const convRing=`<div class="tc-conv-ring"><svg viewBox="0 0 36 36" width="32" height="32"><circle class="track" cx="18" cy="18" r="15"/><circle class="fill" cx="18" cy="18" r="15" stroke="${convColor}" stroke-dasharray="${convPct*0.942} 94.2" stroke-dashoffset="0"/></svg><span class="lbl">${convN}</span></div>`;
+  const override=getStageOverride(t);
+  const currentStage=override||derivedStageFor(t);
+  const selCls=override?'tc-stage-sel overridden':'tc-stage-sel';
+  const selTitle=override?`Manual stage · click to change or reset`:`Auto-derived from status · click to move`;
+  const stageOpts=['AUTO',...STAGES].map(s=>{
+    const lbl = s==='AUTO' ? 'AUTO' : s;
+    const sel = (s==='AUTO' && !override) || (s===override) ? ' selected' : '';
+    return `<option value="${s}"${sel}>${lbl}</option>`;
+  }).join('');
+  const stageSel=`<select class="${selCls}" title="${selTitle}" aria-label="Move ${esc(t.ticker)} to stage" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onkeydown="event.stopPropagation()" onchange="moveCardStage('${esc(t.dayKey)}','${esc(t.ticker)}',this.value,event)">${stageOpts}</select>`;
   return `<div class="tcard ${dirCls} ${vCls}" onclick="openDrawer('${esc(t.ticker)}')" role="button" tabindex="0" aria-label="${t.ticker} ${t.direction} setup">
-    <div class="tc-head"><span class="tc-sym">${t.ticker}</span>${dirBadge}${convRing}</div>
+    <div class="tc-head"><span class="tc-sym">${t.ticker}</span>${dirBadge}${stageSel}${convRing}</div>
     <div class="tc-row"><div class="tc-cell"><div class="lbl">Entry</div><div class="val">${fmtP(t.entry)}</div></div><div class="tc-cell"><div class="lbl">Stop</div><div class="val stop">${fmtP(t.stop)}</div></div><div class="tc-cell"><div class="lbl">Target</div><div class="val tgt">${fmtP(t.target)}</div></div></div>
     <div class="tc-live"><span class="px">${fmtP(t.currentPrice)}</span><span class="ch ${chCls}">${arr} ${fmtPct(t.priceChangePct)}</span><span class="tc-status ${statusCls}">${t.status||'OPEN'}</span></div>
     <div class="tc-progress"><div class="tc-track"><div class="tc-fill ${isLong?'long':'short'}" style="width:${progFill}%"></div></div><div class="tc-pnl"><span>${pnlPos?'+':''}${fmt(t.pnlPct)}%</span><span>R:R 1:${fmt(t.rrRatio,1)}</span></div></div>
