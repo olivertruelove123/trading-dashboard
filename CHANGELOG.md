@@ -1,5 +1,60 @@
 # Changelog
 
+## Overhaul v2 — Post-initial polish (2026-04-24)
+
+Phases A–D shipped on branch `overhaul-v2` after the initial redesign. Everything in this section resolves the "Known limitations" list from the original overhaul.
+
+### Live data — Cloudflare Worker proxy (Phase A, worker scaffold)
+
+- New `worker/` directory with `worker.js`, `wrangler.toml`, and `README.md`. The worker is a minimal Yahoo Finance proxy exposing `/quote` and `/chart` endpoints with CORS headers.
+- Deployed at `https://finance-proxy.olivertruelove123.workers.dev`; `WORKER_URL` constant wired in `index.html`.
+- Breadth bar, right drawer current-price labels, and mini-watchlist now consume real quotes via `refreshLiveQuotes()` on `LIVE_REFRESH_MS` cadence.
+- Graceful fallback to static data + `stale` pill in the breadth bar if the worker is unreachable — no hard dependency.
+- Resolves **Known limitation 1** ("Live price feed — disabled").
+
+### Correlation matrix (Phase B)
+
+- New **Correlation** tab (`G → C`, keyboard navigable; also wired into the command palette).
+- 30-day rolling Pearson correlation computed from daily returns across the full watchlist.
+- OHLCV fetched via the worker's `/chart` endpoint, cached in `localStorage` under `oliver_corr_ohlcv` with a 24h TTL. Stale-while-revalidate on load; explicit **Refresh** button forces a re-fetch.
+- Heatmap uses red ↔ green colour ramp with muted diagonal; scroll-contained for mobile.
+- Resolves **Known limitation 3** ("Correlation matrix — not shipped").
+
+### Kanban click-to-move stage dropdown (Phase C1)
+
+- Each setup card on the **Setups** board carries a per-card `<select>` with options `AUTO / WATCHING / ALERTED / ENTERED / MANAGING / CLOSED`.
+- Overrides persist in `oliver_stage_overrides`. Choosing `AUTO` clears the override and reverts to data-derived status.
+- Non-destructive: the underlying `ALL_DAYS_DATA` tracker entries are never mutated, so `update tracker` auto-deploy keeps working unchanged.
+- Resolves **Known limitation 2** ("Drag-and-drop kanban — not implemented") via the agreed click-to-move fallback, which is robust on mobile where HTML5 DnD is flaky.
+
+### Print stylesheet polish (Phase C2)
+
+- `@page` A4 with 14/14/16/14 mm margins; footer shows document title on the left and `Page N / M` on the right via `counter(page)` + `counter(pages)`.
+- `-webkit-print-color-adjust:exact` and `print-color-adjust:exact` preserve semantic colours (long green, short red, warn amber) on paper.
+- Kanban prints as a 2-column layout; tables repeat `<thead>` across pages; the correlation heatmap is preserved with a lightened palette; playbook is force-expanded so nothing is clipped by collapsed sections.
+- Every panel gets its own page via `page-break-before:always` (first panel exempted).
+- Interactive chrome (breadth bar, cmdbar, sidebar, drawer, FAB, toasts, palette, modals, stage dropdowns, feed/stale dots, tab action buttons) is hidden on paper.
+
+### Phase D — final polish (2026-04-24)
+
+- **Shortcuts audit.** Every keyboard shortcut in `QUICKSTART.md` verified against the `keydown()` handler. `G → F` (Signals feed) was missing from the in-app help modal despite being wired and documented — added.
+- **Mobile 375 px pass.** Verified: breadth bar horizontal scroll, sidebar → bottom-nav transition at ≤900 px, kanban single-column at ≤640 px, `.cmd-clock` / `.cmd-search .txt` hidden at ≤520 px, drawer full-screen overlay at `min(400px, 100%)`, correlation matrix scroll-contained, FAB repositioned above bottom-nav. No additional CSS changes required.
+- **Docs.** `QUICKSTART.md` updated with the `G → C` shortcut, a Correlation matrix section, a Kanban stage dropdown section, and a rewritten Live Feed section reflecting the worker proxy. The "Known limitations" block in this file remains historically correct — see resolutions in the phase sections above.
+
+### LocalStorage keys (consolidated)
+
+Added this session:
+- `oliver_corr_ohlcv` — correlation matrix OHLCV cache (24h TTL).
+- `oliver_stage_overrides` — kanban manual stage placements, non-destructive.
+
+Pre-existing (unchanged): `oliver_day`, `oliver_nav`, `oliver_theme`, `oliver_density`, `oliver_sidebar_collapsed`, `oliver_sizer`, `oliver_journal`.
+
+### Sentinel comments (unchanged)
+
+`EZPZ_INDIVIDUAL`, `EZPZ_WATCHLIST`, `RSI_SCAN_DATA`, `ALL_DAYS_DATA` blocks preserved verbatim. All `run ezpz`, `run tv rsi scan`, and `update tracker` auto-deploy pipelines continue to work.
+
+---
+
 ## Overhaul v2 — 2026-04-23 (branch `overhaul-v2`)
 
 Institutional terminal redesign. Fully rewritten shell, tokenized design system, all tabs rebuilt, plus several new features.

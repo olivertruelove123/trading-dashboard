@@ -23,6 +23,7 @@
 | `G` then `R` | RSI scan |
 | `G` then `W` | Week review |
 | `G` then `E` | EZPZ deep |
+| `G` then `C` | Correlation matrix |
 | `G` then `J` | Journal |
 | `G` then `B` | Playbook |
 | `N` | New journal entry |
@@ -80,12 +81,20 @@ Both preferences persist across sessions.
 
 The `run ezpz $TICKER`, `run ezpz watchlist`, and `run tv rsi scan` commands documented in your `CLAUDE.md` continue to work unchanged — the sentinel-comment data blocks (`EZPZ_INDIVIDUAL`, `EZPZ_WATCHLIST`, `RSI_SCAN_DATA`, `ALL_DAYS_DATA`) are preserved verbatim and at the same locations. No pipeline changes required.
 
+## Correlation matrix
+
+`G` then `C` (or sidebar → **Correlation**). 30-day rolling Pearson correlation across the watchlist, computed from daily returns. Colour ramp red ↔ green, diagonal muted. The first render fetches OHLCV via the worker; subsequent loads hit a 24h localStorage cache (`oliver_corr_ohlcv`) and the **Refresh** button forces a re-fetch.
+
+## Kanban stage dropdown
+
+Each setup card on the **Setups** board now has a small per-card stage dropdown (`AUTO / WATCHING / ALERTED / ENTERED / MANAGING / CLOSED`). Selecting a stage moves the card to that column immediately; picking `AUTO` clears the override and lets the underlying data decide again. Overrides are non-destructive and stored under `oliver_stage_overrides` — the source tracker files are never mutated.
+
 ## Live feed
 
-The breadth bar currently uses a mock feed (static values with a sine-wave shimmer) because Yahoo Finance's quote endpoint is CORS-blocked for browser origins. To wire real prices:
+Live prices are wired via a Cloudflare Worker proxy at `https://finance-proxy.olivertruelove123.workers.dev`. The breadth bar, right drawer, and mini-watchlist pull real Yahoo quotes through this endpoint; if the worker is unreachable the UI falls back gracefully to the static data values and a small `stale` indicator appears next to the feed.
 
-1. Deploy a tiny CORS proxy (Cloudflare Worker: 15 lines; or Netlify / Vercel function).
-2. Edit `renderBreadth()` in `index.html` and replace the mock calc with `fetch('<your-proxy>?symbols=SPY,QQQ,IWM,BTC-USD,DX-Y.NYB')`.
-3. Yahoo's response shape is `{quoteResponse:{result:[{symbol,regularMarketPrice,regularMarketChangePercent}]}}`.
+- Worker source: `worker/worker.js`
+- Endpoints: `/quote?symbols=SPY,QQQ,IWM,BTC-USD,DX-Y.NYB` · `/chart?symbol=SPY&range=3mo&interval=1d`
+- Deploy guide: `worker/README.md`
 
-Ping me when you want it wired up.
+Refresh cadence is controlled by `LIVE_REFRESH_MS` in `index.html`.
