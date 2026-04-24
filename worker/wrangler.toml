@@ -1,0 +1,12 @@
+# Optional: use this if you deploy via the Wrangler CLI instead of the dashboard.
+# The dashboard-paste flow in README.md does NOT require this file.
+#
+# Install Wrangler:  npm install -g wrangler
+# Deploy:            wrangler deploy
+# Tail logs:         wrangler tail
+
+name = "oliver-finance-proxy"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# No bindings needed — this Worker is stateless.
