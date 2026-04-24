@@ -94,6 +94,19 @@ input,select,textarea{font:inherit;color:inherit;background:none;border:none}
 .feed-stale{color:var(--c-warn)!important}
 @keyframes feedPulse{0%,100%{opacity:.4}50%{opacity:1}}
 .drawer-live-card .val{font-size:var(--t-md)}
+.corr-wrap{overflow:auto;max-width:100%;border:1px solid var(--c-border);border-radius:var(--r-md);background:var(--c-surface-1)}
+.corr-grid{border-collapse:separate;border-spacing:0;font-family:var(--f-mono);font-size:11px;margin:0}
+.corr-grid th,.corr-grid td{padding:3px 6px;text-align:center;white-space:nowrap;min-width:44px;height:24px;box-sizing:border-box}
+.corr-grid thead th{position:sticky;top:0;background:var(--c-surface-2);color:var(--c-text-secondary);font-weight:600;font-size:10px;letter-spacing:.04em;z-index:2;border-bottom:1px solid var(--c-border)}
+.corr-grid thead th.corner{left:0;z-index:3}
+.corr-grid tbody th{position:sticky;left:0;background:var(--c-surface-2);color:var(--c-text-secondary);font-weight:600;text-align:right;z-index:1;border-right:1px solid var(--c-border);font-size:10px;letter-spacing:.04em;padding-right:8px}
+.corr-grid tbody td{color:rgba(255,255,255,.92);font-variant-numeric:tabular-nums;font-weight:500;cursor:default}
+.corr-grid tbody td.diag{background:var(--c-surface-3);color:var(--c-text-muted)}
+.corr-grid tbody td.na{background:transparent;color:var(--c-text-muted)}
+.corr-legend{display:flex;align-items:center;gap:var(--s-2);font-size:var(--t-xs);color:var(--c-text-muted);margin-top:var(--s-3)}
+.corr-legend .bar{flex:0 0 180px;height:10px;border-radius:var(--r-xs);background:linear-gradient(90deg,rgba(239,68,68,.75),rgba(239,68,68,0) 50%,rgba(16,185,129,0) 50%,rgba(16,185,129,.75))}
+.corr-meta{display:flex;gap:var(--s-4);flex-wrap:wrap;margin-bottom:var(--s-3);font-size:var(--t-sm);color:var(--c-text-secondary)}
+.corr-meta .pill{background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--r-sm);padding:4px 10px;font-family:var(--f-mono);font-size:var(--t-xs)}
 .br-up{color:var(--c-long)}.br-dn{color:var(--c-short)}
 
 /* === COMMAND BAR === */
@@ -542,6 +555,7 @@ svg.chart{width:100%;display:block;overflow:visible}
       <section class="panel" id="tab-rsiscan"></section>
       <section class="panel" id="tab-week"></section>
       <section class="panel" id="tab-ezpz"></section>
+      <section class="panel" id="tab-corr"></section>
       <section class="panel" id="tab-journal"></section>
       <section class="panel" id="tab-playbook"></section>
     </div>
@@ -993,6 +1007,7 @@ const NAV_TABS = [
   {id:'rsiscan',lbl:'RSI Scan',icn:'∿',desc:'Trinity RSI Pro Bollinger breakout scan'},
   {id:'week',lbl:'Week Review',icn:'▤',desc:'Weekly performance recap'},
   {id:'ezpz',lbl:'EZPZ Deep',icn:'◎',desc:'17-signal options-flow deep dive'},
+  {id:'corr',lbl:'Correlation',icn:'⊞',desc:'30-day rolling correlation heatmap'},
   {id:'journal',lbl:'Journal',icn:'✎',desc:'Trade journal entries'},
   {id:'playbook',lbl:'Playbook',icn:'📘',desc:'Short squeeze playbook'}
 ];
@@ -1130,6 +1145,175 @@ async function refreshLiveQuotes(){
   renderBreadth();
   renderMiniWatchlist();
   refreshDrawerLive();
+}
+
+/* === CORRELATION MATRIX === */
+const CORR_CACHE_KEY = 'oliver_corr_ohlcv';
+const CORR_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const CORR_WINDOW_DAYS = 30;
+const CORR_FETCH_RANGE = '3mo'; // ~60 trading days, plenty of headroom
+let corrState = { loading:false, lastError:null, fetchedAt:null };
+
+function corrUniverse(){
+  const set = new Set();
+  Object.values(ALL_DAYS_DATA.days).forEach(d=>d.tickers.forEach(t=>set.add(t.ticker)));
+  return Array.from(set).sort();
+}
+function loadCorrCache(){
+  try{return JSON.parse(localStorage.getItem(CORR_CACHE_KEY)||'{}')||{}}
+  catch(e){return {}}
+}
+function saveCorrCache(c){
+  try{localStorage.setItem(CORR_CACHE_KEY,JSON.stringify(c))}catch(e){}
+}
+function isCacheFresh(entry){
+  return entry && entry.fetchedAt && (Date.now() - entry.fetchedAt) < CORR_CACHE_TTL_MS && Array.isArray(entry.closes) && entry.closes.length >= CORR_WINDOW_DAYS + 1;
+}
+async function fetchCloses(ticker){
+  const url = `${WORKER_URL}/chart?symbol=${encodeURIComponent(ticker)}&range=${CORR_FETCH_RANGE}&interval=1d`;
+  const res = await fetch(url);
+  if(!res.ok)throw new Error('http_'+res.status);
+  const j = await res.json();
+  const result = j && j.chart && j.chart.result && j.chart.result[0];
+  if(!result)throw new Error('no_data');
+  const closes = ((result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [])
+    .map(v => (v==null || isNaN(v)) ? null : Number(v))
+    .filter(v => v!=null);
+  if(closes.length < 2)throw new Error('insufficient_data');
+  return closes;
+}
+function dailyReturns(closes){
+  const r = [];
+  for(let i=1;i<closes.length;i++){
+    const prev = closes[i-1], cur = closes[i];
+    if(prev && prev !== 0) r.push((cur - prev) / prev);
+  }
+  return r;
+}
+function pearson(a,b){
+  const n = Math.min(a.length,b.length);
+  if(n < 3)return null;
+  const xs = a.slice(-n), ys = b.slice(-n);
+  let sx=0,sy=0;for(let i=0;i<n;i++){sx+=xs[i];sy+=ys[i]}
+  const mx=sx/n, my=sy/n;
+  let num=0,dx=0,dy=0;
+  for(let i=0;i<n;i++){const ex=xs[i]-mx, ey=ys[i]-my;num+=ex*ey;dx+=ex*ex;dy+=ey*ey}
+  const denom = Math.sqrt(dx*dy);
+  if(denom===0 || !isFinite(denom))return null;
+  return num / denom;
+}
+function corrCellColor(r){
+  if(r==null)return '';
+  const clamped = Math.max(-1, Math.min(1, r));
+  const alpha = Math.min(0.75, Math.abs(clamped) * 0.75);
+  if(clamped >= 0){
+    return `background:rgba(16,185,129,${alpha.toFixed(3)})`;
+  }
+  return `background:rgba(239,68,68,${alpha.toFixed(3)})`;
+}
+async function renderCorrelation(opts){
+  opts = opts || {};
+  const el = $('#tab-corr');if(!el)return;
+  const tickers = corrUniverse();
+  if(!tickers.length){el.innerHTML = emptyState('No tickers in universe','Add setups to populate the correlation matrix');return}
+
+  // 1) Paint with whatever cache we have
+  let cache = loadCorrCache();
+  if(opts.force){cache = {};}
+
+  const renderFromCache = () => {
+    const closesMap = {};
+    const missing = [];
+    tickers.forEach(t=>{
+      const entry = cache[t];
+      if(isCacheFresh(entry))closesMap[t] = entry.closes;
+      else missing.push(t);
+    });
+    const ready = Object.keys(closesMap);
+    const returns = {};
+    ready.forEach(t=>{returns[t] = dailyReturns(closesMap[t]).slice(-CORR_WINDOW_DAYS)});
+
+    const meta = [];
+    meta.push(`<span class="pill">Window · ${CORR_WINDOW_DAYS}d returns</span>`);
+    meta.push(`<span class="pill">Universe · ${tickers.length} tickers</span>`);
+    if(ready.length < tickers.length){
+      meta.push(`<span class="pill" style="color:var(--c-warn)">Fetching · ${tickers.length - ready.length} remaining</span>`);
+    }
+    if(corrState.lastError){
+      meta.push(`<span class="pill" style="color:var(--c-warn)">Last error: ${esc(corrState.lastError)}</span>`);
+    }
+    if(corrState.fetchedAt){
+      const mins = Math.round((Date.now()-corrState.fetchedAt)/60000);
+      meta.push(`<span class="pill">Refreshed · ${mins<1?'just now':mins+'m ago'}</span>`);
+    }
+
+    // Build grid (full symmetric — easier to read than triangle)
+    let head = '<thead><tr><th class="corner"></th>';
+    tickers.forEach(t=>{head += `<th class="col">${esc(t)}</th>`});
+    head += '</tr></thead>';
+
+    let body = '<tbody>';
+    tickers.forEach(rowT=>{
+      body += `<tr><th class="row">${esc(rowT)}</th>`;
+      tickers.forEach(colT=>{
+        if(rowT === colT){
+          body += `<td class="diag">1.00</td>`;
+          return;
+        }
+        const a = returns[rowT], b = returns[colT];
+        if(!a || !b){
+          body += `<td class="na">—</td>`;
+          return;
+        }
+        const r = pearson(a,b);
+        if(r==null){body += `<td class="na">—</td>`;return}
+        body += `<td style="${corrCellColor(r)}" title="${rowT}↔${colT} · r=${r.toFixed(3)}">${r>=0?'':''}${r.toFixed(2)}</td>`;
+      });
+      body += `</tr>`;
+    });
+    body += '</tbody>';
+
+    el.innerHTML =
+      `<div class="corr-meta">${meta.join('')}</div>`
+      + `<div class="corr-wrap"><table class="corr-grid">${head}${body}</table></div>`
+      + `<div class="corr-legend"><span>Correlation</span><span>−1</span><span class="bar"></span><span>+1</span><span class="mute" style="margin-left:auto">Hover a cell to see exact r</span></div>`;
+  };
+
+  renderFromCache();
+
+  // 2) Fetch any stale/missing tickers in the background
+  const toFetch = tickers.filter(t => !isCacheFresh(cache[t]));
+  if(toFetch.length === 0 || corrState.loading)return;
+
+  corrState.loading = true;
+  corrState.lastError = null;
+  try{
+    // Small concurrency limit to be polite to the Worker
+    const LIMIT = 6;
+    let i = 0;
+    async function worker(){
+      while(i < toFetch.length){
+        const idx = i++;
+        const sym = toFetch[idx];
+        try{
+          const closes = await fetchCloses(sym);
+          cache[sym] = { closes, fetchedAt: Date.now() };
+          saveCorrCache(cache);
+        }catch(e){
+          // Cache a short negative marker so we don't hammer on broken tickers
+          cache[sym] = { closes: [], fetchedAt: Date.now() - CORR_CACHE_TTL_MS + 5*60*1000, error: String(e.message||e) };
+          saveCorrCache(cache);
+        }
+      }
+    }
+    await Promise.all(Array.from({length:Math.min(LIMIT,toFetch.length)},()=>worker()));
+    corrState.fetchedAt = Date.now();
+  }catch(e){
+    corrState.lastError = String(e.message||e);
+  }finally{
+    corrState.loading = false;
+    if(currentNavTab === 'corr')renderFromCache();
+  }
 }
 
 /* === SIDEBAR === */
@@ -1848,7 +2032,7 @@ function openHelp(){
   const shortcuts=[
     ['⌘K / Ctrl+K','Command palette'],
     ['G then S','Setups'],['G then P','Performance'],['G then R','RSI scan'],
-    ['G then W','Week review'],['G then E','EZPZ deep'],['G then J','Journal'],['G then B','Playbook'],
+    ['G then W','Week review'],['G then E','EZPZ deep'],['G then C','Correlation'],['G then J','Journal'],['G then B','Playbook'],
     ['N','New journal entry'],['S','Position sizer'],['T','Toggle theme'],['D','Cycle density'],
     ['B','Toggle sidebar'],['?','This help'],['ESC','Close overlay']
   ];
@@ -1931,6 +2115,7 @@ function switchNav(id){
   else if(id==='rsiscan')renderRsiScan();
   else if(id==='week')renderWeek();
   else if(id==='ezpz')renderEzpz();
+  else if(id==='corr')renderCorrelation();
   else if(id==='journal')renderJournal();
   else if(id==='playbook')renderPlaybook();
   // Workspace actions
@@ -1938,6 +2123,7 @@ function switchNav(id){
   if(id==='setups'){ws.innerHTML=`<button class="btn small" onclick="renderSetups()">Refresh</button>`}
   else if(id==='perf'){ws.innerHTML=`<button class="btn small" onclick="exportTradesCSV()">Export CSV</button><button class="btn small" onclick="window.print()">Print</button>`}
   else if(id==='journal'){ws.innerHTML=`<button class="btn small primary" onclick="openJournal()">+ New Entry</button>`}
+  else if(id==='corr'){ws.innerHTML=`<button class="btn small" onclick="renderCorrelation({force:true})">Refresh</button>`}
   else if(id==='playbook'){ws.innerHTML=`<button class="btn small" onclick="pbExpandAll()">Expand all</button><button class="btn small ghost" onclick="pbCollapseAll()">Collapse all</button>`}
   else ws.innerHTML='';
 }
@@ -1964,7 +2150,7 @@ function keydown(e){
   if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openPalette();return}
   // g-prefix
   if(gPrefix){
-    const map={s:'setups',p:'perf',r:'rsiscan',w:'week',e:'ezpz',j:'journal',b:'playbook',f:'signals'};
+    const map={s:'setups',p:'perf',r:'rsiscan',w:'week',e:'ezpz',j:'journal',b:'playbook',f:'signals',c:'corr'};
     if(map[e.key]){switchNav(map[e.key]);gPrefix=false;clearTimeout(gTimer);return}
     gPrefix=false;clearTimeout(gTimer);
   }
