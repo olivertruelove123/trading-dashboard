@@ -85,6 +85,15 @@ input,select,textarea{font:inherit;color:inherit;background:none;border:none}
 .breadth .br-sym{color:var(--c-text-secondary);font-weight:600}
 .breadth .br-px{color:var(--c-text);font-weight:600;font-variant-numeric:tabular-nums}
 .breadth .br-ch{font-weight:500;font-variant-numeric:tabular-nums}
+.stale-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c-text-muted);margin-right:6px;opacity:.55;vertical-align:middle}
+.feed-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;background:var(--c-text-muted);transition:background var(--dur) var(--ease)}
+.feed-live .feed-dot{background:var(--c-long);box-shadow:0 0 6px var(--c-long)}
+.feed-stale .feed-dot{background:var(--c-warn)}
+.feed-loading .feed-dot{background:var(--c-accent);animation:feedPulse 1.2s ease-in-out infinite}
+.feed-live{color:var(--c-long)!important}
+.feed-stale{color:var(--c-warn)!important}
+@keyframes feedPulse{0%,100%{opacity:.4}50%{opacity:1}}
+.drawer-live-card .val{font-size:var(--t-md)}
 .br-up{color:var(--c-long)}.br-dn{color:var(--c-short)}
 
 /* === COMMAND BAR === */
@@ -987,12 +996,20 @@ const NAV_TABS = [
   {id:'journal',lbl:'Journal',icn:'✎',desc:'Trade journal entries'},
   {id:'playbook',lbl:'Playbook',icn:'📘',desc:'Short squeeze playbook'}
 ];
+/* === LIVE FEED (Cloudflare Worker → Yahoo Finance) === */
+const WORKER_URL = 'https://finance-proxy.olivertruelove123.workers.dev';
+const LIVE_REFRESH_MS = 15000; // 15s — Worker edge-caches upstream for 5s
+const STALE_AFTER_MS = 60000;  // after 60s with no OK response, mark stale
+const liveQuotes = {};         // Yahoo symbol → quote object
+let liveFeedStatus = 'loading'; // 'loading' | 'live' | 'stale'
+let liveFeedLastOk = 0;
+
 const BREADTH_SYMS = [
-  {sym:'SPY',name:'S&P 500',basePx:542.18,bx:0.42},
-  {sym:'QQQ',name:'Nasdaq',basePx:478.52,bx:0.38},
-  {sym:'IWM',name:'Russell 2K',basePx:218.90,bx:-0.14},
-  {sym:'BTC',name:'Bitcoin',basePx:93420,bx:1.12},
-  {sym:'DXY',name:'Dollar Idx',basePx:103.28,bx:-0.08}
+  {sym:'SPY',ySym:'SPY',name:'S&P 500',basePx:542.18,bx:0.42},
+  {sym:'QQQ',ySym:'QQQ',name:'Nasdaq',basePx:478.52,bx:0.38},
+  {sym:'IWM',ySym:'IWM',name:'Russell 2K',basePx:218.90,bx:-0.14},
+  {sym:'BTC',ySym:'BTC-USD',name:'Bitcoin',basePx:93420,bx:1.12},
+  {sym:'DXY',ySym:'DX-Y.NYB',name:'Dollar Idx',basePx:103.28,bx:-0.08}
 ];
 const DAYS_ORDER = Object.keys(ALL_DAYS_DATA.days).sort();
 let currentDayKey = DAYS_ORDER[DAYS_ORDER.length-1];
@@ -1045,7 +1062,7 @@ function renderSessions(){
   }).join('');
 }
 
-/* === CLOCK & BREADTH (mock feed) === */
+/* === CLOCK & BREADTH === */
 function updateClock(){
   const el=$('#clock');if(!el)return;
   const now=new Date();
@@ -1055,15 +1072,64 @@ function renderBreadth(){
   const el=$('#breadth');if(!el)return;
   const t=Date.now()/60000;
   const items=BREADTH_SYMS.map(s=>{
-    const jitter=Math.sin(t*0.07+s.sym.charCodeAt(0))*0.4;
-    const ch=s.bx+jitter;
-    const chPct=ch*0.2;
-    const px=s.basePx*(1+chPct/100);
-    const cls=ch>=0?'br-up':'br-dn';
-    const arr=ch>=0?'▲':'▼';
-    return `<div class="br-item"><span class="br-sym">${s.sym}</span><span class="br-px">${px>=1000?px.toFixed(0):px.toFixed(2)}</span><span class="br-ch ${cls}">${arr} ${fmtPct(chPct,2)}</span></div>`;
+    const q=liveQuotes[s.ySym];
+    let px, chPct, live=false;
+    if(q && q.price!=null && q.changePercent!=null){
+      px=q.price; chPct=q.changePercent; live=true;
+    } else {
+      const jitter=Math.sin(t*0.07+s.sym.charCodeAt(0))*0.4;
+      chPct=(s.bx+jitter)*0.2;
+      px=s.basePx*(1+chPct/100);
+    }
+    const cls=chPct>=0?'br-up':'br-dn';
+    const arr=chPct>=0?'▲':'▼';
+    const dot=live?'':'<span class="stale-dot" title="fallback value — live feed stale"></span>';
+    return `<div class="br-item">${dot}<span class="br-sym">${s.sym}</span><span class="br-px">${px>=1000?px.toFixed(0):px.toFixed(2)}</span><span class="br-ch ${cls}">${arr} ${fmtPct(chPct,2)}</span></div>`;
   }).join('');
-  el.innerHTML=`<span class="br-lbl">Market</span>`+items+`<span class="br-lbl" style="margin-left:auto">Feed: mock · wire CORS proxy to go live</span>`;
+  let feedTxt, feedCls;
+  if(liveFeedStatus==='live'){feedTxt='Feed: live';feedCls='feed-live'}
+  else if(liveFeedStatus==='stale'){feedTxt='Feed: stale';feedCls='feed-stale'}
+  else {feedTxt='Feed: loading…';feedCls='feed-loading'}
+  el.innerHTML=`<span class="br-lbl">Market</span>`+items+`<span class="br-lbl ${feedCls}" style="margin-left:auto" title="Yahoo via Cloudflare Worker"><span class="feed-dot"></span>${feedTxt}</span>`;
+}
+
+/* === LIVE QUOTE FETCH === */
+function neededSymbols(){
+  const set=new Set();
+  BREADTH_SYMS.forEach(s=>set.add(s.ySym));
+  Object.values(ALL_DAYS_DATA.days).forEach(d=>d.tickers.forEach(t=>set.add(t.ticker)));
+  if(drawerTicker)set.add(drawerTicker);
+  return Array.from(set);
+}
+async function refreshLiveQuotes(){
+  const syms=neededSymbols();
+  if(!syms.length){renderBreadth();return}
+  const batches=[];
+  for(let i=0;i<syms.length;i+=25)batches.push(syms.slice(i,i+25));
+  try{
+    const jsonArr=await Promise.all(batches.map(b=>
+      fetch(`${WORKER_URL}/quote?symbols=${encodeURIComponent(b.join(','))}`).then(r=>{
+        if(!r.ok)throw new Error('http_'+r.status);
+        return r.json();
+      })
+    ));
+    let got=0;
+    jsonArr.forEach(j=>(j&&j.quotes||[]).forEach(q=>{
+      if(q && q.price!=null){liveQuotes[q.symbol]=q;got++}
+    }));
+    if(got>0){liveFeedStatus='live';liveFeedLastOk=Date.now()}
+    else {liveFeedStatus='stale'}
+  }catch(e){
+    if(liveFeedLastOk && Date.now()-liveFeedLastOk<STALE_AFTER_MS){
+      // keep showing live for a grace window before flipping to stale
+      liveFeedStatus='live';
+    } else {
+      liveFeedStatus='stale';
+    }
+  }
+  renderBreadth();
+  renderMiniWatchlist();
+  refreshDrawerLive();
 }
 
 /* === SIDEBAR === */
@@ -1087,11 +1153,20 @@ function renderMiniWatchlist(){
   Object.values(ALL_DAYS_DATA.days).forEach(d=>d.tickers.forEach(t=>{
     if(!tickers[t.ticker]||t.entryDate>tickers[t.ticker].entryDate)tickers[t.ticker]=t;
   }));
-  const top=Object.values(tickers).sort((a,b)=>Math.abs(b.pnlPct||0)-Math.abs(a.pnlPct||0)).slice(0,5);
+  const rows=Object.values(tickers).map(t=>{
+    const q=liveQuotes[t.ticker];
+    const livePct = q && q.changePercent!=null ? q.changePercent : null;
+    return {t, q, livePct, sortKey: Math.abs(livePct!=null?livePct:(t.pnlPct||0))};
+  });
+  const top=rows.sort((a,b)=>b.sortKey-a.sortKey).slice(0,5);
   if(!top.length){el.innerHTML='<div class="mw-row mute">No positions</div>';return}
-  el.innerHTML=top.map(t=>{
-    const cls=(t.pnlPct||0)>=0?'long':'short';
-    return `<div class="mw-row" onclick="openDrawer('${t.ticker}')"><span class="mw-sym">${t.ticker}</span><span class="mw-px">${fmtP(t.currentPrice)}</span><span class="mw-ch ${cls}">${fmtPct(t.pnlPct)}</span></div>`;
+  el.innerHTML=top.map(o=>{
+    const t=o.t, q=o.q;
+    const px = q && q.price!=null ? q.price : t.currentPrice;
+    const pct = o.livePct!=null ? o.livePct : t.pnlPct;
+    const cls=(pct||0)>=0?'long':'short';
+    const dot = q ? '' : '<span class="stale-dot" title="using fallback"></span>';
+    return `<div class="mw-row" onclick="openDrawer('${t.ticker}')"><span class="mw-sym">${dot}${t.ticker}</span><span class="mw-px">${fmtP(px)}</span><span class="mw-ch ${cls}">${fmtPct(pct)}</span></div>`;
   }).join('');
 }
 
@@ -1561,6 +1636,30 @@ function pbExpandAll(){PLAYBOOK_SECTIONS.forEach(s=>$('#pb-'+s.id).classList.add
 function pbCollapseAll(){PLAYBOOK_SECTIONS.forEach(s=>$('#pb-'+s.id).classList.remove('open'))}
 
 /* === DRAWER (ticker detail) === */
+function fmtVol(v){
+  if(v==null||isNaN(v))return'—';
+  if(v>=1e9)return(v/1e9).toFixed(2)+'B';
+  if(v>=1e6)return(v/1e6).toFixed(2)+'M';
+  if(v>=1e3)return(v/1e3).toFixed(1)+'K';
+  return String(v);
+}
+function drawerLiveHtml(ticker){
+  const q=liveQuotes[ticker];
+  if(!q){
+    return `<div class="card drawer-live-card"><div class="card-hdr"><div class="card-title">Live Quote <span class="stale-dot" title="waiting for feed"></span></div><span class="mono sec" style="font-size:var(--t-xs)">fetching…</span></div><div class="mono sec" style="font-size:var(--t-sm)">Refreshing every ${LIVE_REFRESH_MS/1000}s</div></div>`;
+  }
+  const cls=(q.changePercent||0)>=0?'long':'short';
+  const arr=(q.changePercent||0)>=0?'▲':'▼';
+  const rng = (q.dayLow!=null && q.dayHigh!=null) ? `${fmtP(q.dayLow)} – ${fmtP(q.dayHigh)}` : '—';
+  const ms=q.marketState||'';
+  const msBadge = ms ? `<span class="badge ${ms==='REGULAR'?'b-bull':''}" style="font-size:var(--t-xs)">${ms}</span>` : '';
+  return `<div class="card drawer-live-card"><div class="card-hdr"><div class="card-title">Live Quote</div>${msBadge}</div><div class="tc-row" style="padding:0"><div class="tc-cell"><div class="lbl">Price</div><div class="val mono">${fmtP(q.price)}</div></div><div class="tc-cell"><div class="lbl">Day</div><div class="val mono ${cls}">${arr} ${fmtPct(q.changePercent)}</div></div><div class="tc-cell"><div class="lbl">Volume</div><div class="val mono">${fmtVol(q.volume)}</div></div></div><div class="mono sec" style="font-size:var(--t-xs);margin-top:var(--s-2);display:flex;justify-content:space-between"><span>Range ${rng}</span><span>Δ ${fmtSigned(q.change)}</span></div></div>`;
+}
+function refreshDrawerLive(){
+  if(!drawerTicker)return;
+  const host=document.getElementById('drawer-live-host');
+  if(host)host.innerHTML=drawerLiveHtml(drawerTicker);
+}
 function openDrawer(ticker){
   drawerTicker=ticker;
   const all=allTickers();
@@ -1569,6 +1668,7 @@ function openDrawer(ticker){
   const rsi=(RSI_SCAN_DATA.results||[]).find(r=>r.ticker===ticker);
   const el=$('#drawer');
   const chartHtml=`<div class="drawer-chart"><iframe loading="lazy" src="https://www.tradingview.com/widgetembed/?frameElementId=${esc(ticker)}&symbol=${esc(ticker)}&interval=60&theme=dark&style=1&locale=en&toolbar_bg=%230F1E35&hide_top_toolbar=1&hide_legend=0&allow_symbol_change=0" title="${esc(ticker)} chart"></iframe></div>`;
+  const liveHostHtml=`<div id="drawer-live-host">${drawerLiveHtml(ticker)}</div>`;
   const tvLink=`https://www.tradingview.com/chart/?symbol=${esc(ticker)}`;
   let metricsHtml='';
   if(latest){
@@ -1582,9 +1682,15 @@ function openDrawer(ticker){
   if(rsi){
     rsiHtml=`<div class="card"><div class="card-hdr"><div class="card-title">RSI Scan</div><span class="badge ${rsi.signal==='BULLISH'?'b-bull':'b-bear'}">${rsi.signal}</span></div><div class="mono sec" style="font-size:var(--t-sm)">RSI ${fmt(rsi.rsiValue,2)} · ${rsi.bbType} ${fmt(rsi.bbLevel,2)}</div></div>`;
   }
-  el.innerHTML=`<div class="drawer-hdr"><div><div class="drawer-sym">${ticker}</div>${latest?`<div class="mono mute" style="font-size:var(--t-xs)">${fmtP(latest.currentPrice)} · ${fmtPct(latest.priceChangePct)}</div>`:''}</div><button class="icon-btn" onclick="closeDrawer()" aria-label="Close drawer">✕</button></div><div class="drawer-body">${chartHtml}${metricsHtml}${ezHtml}${rsiHtml}<div class="drawer-act"><button class="btn" onclick="openJournalFor('${esc(ticker)}')">✎ Journal entry</button><a class="btn ghost" href="${tvLink}" target="_blank" rel="noopener">Open in TradingView ↗</a>${latest?`<button class="btn ghost" onclick="copyTrade('${esc(ticker)}')">⎘ Copy trade plan</button>`:''}</div></div>`;
+  const lq=liveQuotes[ticker];
+  const hdrPx = lq && lq.price!=null ? lq.price : (latest?latest.currentPrice:null);
+  const hdrPct = lq && lq.changePercent!=null ? lq.changePercent : (latest?latest.priceChangePct:null);
+  const hdrSub = (hdrPx!=null) ? `<div class="mono mute" style="font-size:var(--t-xs)">${fmtP(hdrPx)}${hdrPct!=null?' · <span class="'+(hdrPct>=0?'long':'short')+'">'+fmtPct(hdrPct)+'</span>':''}${lq?'':' <span class="stale-dot" title="fallback"></span>'}</div>` : '';
+  el.innerHTML=`<div class="drawer-hdr"><div><div class="drawer-sym">${ticker}</div>${hdrSub}</div><button class="icon-btn" onclick="closeDrawer()" aria-label="Close drawer">✕</button></div><div class="drawer-body">${chartHtml}${liveHostHtml}${metricsHtml}${ezHtml}${rsiHtml}<div class="drawer-act"><button class="btn" onclick="openJournalFor('${esc(ticker)}')">✎ Journal entry</button><a class="btn ghost" href="${tvLink}" target="_blank" rel="noopener">Open in TradingView ↗</a>${latest?`<button class="btn ghost" onclick="copyTrade('${esc(ticker)}')">⎘ Copy trade plan</button>`:''}</div></div>`;
   el.style.display='flex';
   $('#app').classList.add('drawer-open');
+  // If we don't have a live quote cached yet, kick a refresh so the drawer populates quickly
+  if(!lq)refreshLiveQuotes();
 }
 function closeDrawer(){
   drawerTicker=null;
@@ -1886,7 +1992,11 @@ function init(){
   updateClock();renderSessions();renderBreadth();
   setInterval(updateClock,1000);
   setInterval(renderSessions,30000);
-  setInterval(renderBreadth,5000);
+  // Live quote feed — kick immediately, then refresh every LIVE_REFRESH_MS
+  refreshLiveQuotes();
+  setInterval(refreshLiveQuotes,LIVE_REFRESH_MS);
+  // Keep breadth redrawing during the loading grace window so the feed pill animates
+  setInterval(()=>{if(liveFeedStatus!=='live')renderBreadth()},5000);
   // Palette input handler
   $('#palette-input').addEventListener('input',e=>{paletteQuery=e.target.value;paletteIndex=0;renderPalette()});
   // Global keyboard
