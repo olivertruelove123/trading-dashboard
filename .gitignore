@@ -2,3 +2,6 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Local backups
+index.html.backup-*

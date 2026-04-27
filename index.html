@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="terminal" data-density="comfortable">
 <head>
 <meta charset="UTF-8">
@@ -1890,33 +1890,236 @@ function renderEzpz(){
   el.innerHTML=stats+cards;
 }
 function ezCard(r){
-  const isLong=r.direction==='LONG';
-  const dirCls=isLong?'dir-long':'dir-short';
-  const entry=fmtP(r.entry),stop=fmtP(r.stop),tgt=fmtP(r.target);
-  const bulls=r.bullish||0,bears=r.bearish||0,neuts=r.neutral||0,cauts=r.caution||0;
-  const total=bulls+bears+neuts+cauts||1;
-  const bPct=(bulls/total*100).toFixed(1),nPct=((neuts+cauts)/total*100).toFixed(1),rPct=(bears/total*100).toFixed(1);
-  const sigRows=(r.signals||[]).map(s=>{
-    const sc=s.score==='BULLISH'?'ss-bull':s.score==='BEARISH'?'ss-bear':s.score==='CAUTION'?'ss-caut':'ss-neut';
-    const sl=s.score==='BULLISH'?'BULL':s.score==='BEARISH'?'BEAR':s.score==='CAUTION'?'CAUT':'NEUT';
-    const rc=s.score==='BULLISH'?'row-bull':s.score==='BEARISH'?'row-bear':s.score==='CAUTION'?'row-caut':'';
+  const isLong = r.direction === 'LONG';
+  const isShort = r.direction === 'SHORT';
+  const dirCls = isLong ? 'dir-long' : isShort ? 'dir-short' : '';
+  const entry = fmtP(r.entry), stop = fmtP(r.stop), tgt = fmtP(r.target);
+  const bulls = r.bullish || 0, bears = r.bearish || 0, neuts = r.neutral || 0, cauts = r.caution || 0;
+  const total = bulls + bears + neuts + cauts || 1;
+  const bPct = (bulls/total*100).toFixed(1);
+  const nPct = ((neuts+cauts)/total*100).toFixed(1);
+  const rPct = (bears/total*100).toFixed(1);
+
+  // Signal table (existing)
+  const sigRows = (r.signals || []).map(s => {
+    const sc = s.score === 'BULLISH' ? 'ss-bull' : s.score === 'BEARISH' ? 'ss-bear' : s.score === 'CAUTION' ? 'ss-caut' : 'ss-neut';
+    const sl = s.score === 'BULLISH' ? 'BULL' : s.score === 'BEARISH' ? 'BEAR' : s.score === 'CAUTION' ? 'CAUT' : 'NEUT';
+    const rc = s.score === 'BULLISH' ? 'row-bull' : s.score === 'BEARISH' ? 'row-bear' : s.score === 'CAUTION' ? 'row-caut' : '';
     return `<tr class="${rc}"><td><span class="ez-sig-name">${s.signal}</span><span class="ez-sig-sub">${s.source}</span></td><td><span class="ss ${sc}">${sl}</span></td><td><span class="ez-sig-detail">${s.detail}</span></td></tr>`;
   }).join('');
-  const radar=ezRadar(r);
+
+  const radar = ezRadar(r);
+
+  // Recommendation header
+  const recHtml = r.recommendation ? `
+    <div style="padding:var(--s-3) var(--s-4);background:linear-gradient(90deg,${isLong?'var(--c-long-lo)':isShort?'var(--c-short-lo)':'var(--c-accent-lo)'},transparent);border-top:1px solid var(--c-border);border-bottom:1px solid var(--c-border)">
+      <div class="display mute" style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px">Recommendation</div>
+      <div style="font-family:var(--f-ui);font-size:var(--t-md);line-height:1.55;color:var(--c-text);font-weight:500">${esc(r.recommendation)}</div>
+    </div>` : '';
+
+  const macroHtml = r.macro ? renderMacro(r.macro) : '';
+  const tfHtml = r.timeframes ? renderTimeframes(r.timeframes, r.timeframeVerdict) : '';
+
+  const horizonsHtml = r.horizons ? `
+    <div style="padding:var(--s-3) var(--s-4) var(--s-4);border-top:1px solid var(--c-border)">
+      <div class="card-title" style="margin-bottom:var(--s-3)">Horizon Forecast</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s-3)">
+        ${renderHorizon('Next Session', r.horizons.nextSession, 'var(--c-long)')}
+        ${renderHorizon('End of Week', r.horizons.endOfWeek, 'var(--c-accent)')}
+        ${renderHorizon('End of Month', r.horizons.endOfMonth, 'var(--c-warn)')}
+        ${renderHorizon('Quarterly+', r.horizons.quarterly, 'var(--c-short)')}
+      </div>
+    </div>` : '';
+
+  const tradeHtml = r.tradePlan ? renderTradePlan(r.tradePlan) : '';
+
+  const premortemHtml = r.preMortem ? `
+    <div style="padding:var(--s-3) var(--s-4);border-top:1px solid var(--c-border)">
+      <div class="card-title" style="margin-bottom:var(--s-2)">Pre-Mortem</div>
+      <div style="display:grid;grid-template-columns:1fr;gap:var(--s-2);font-size:var(--t-sm);line-height:1.55;color:var(--c-text-secondary)">
+        ${r.preMortem.killsOvernight ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Kills overnight</span><div>${esc(r.preMortem.killsOvernight)}</div></div>` : ''}
+        ${r.preMortem.wrongAbout ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">What I'm wrong about</span><div>${esc(r.preMortem.wrongAbout)}</div></div>` : ''}
+        ${r.preMortem.correlationCheck ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Correlation</span><div>${esc(r.preMortem.correlationCheck)}</div></div>` : ''}
+      </div>
+    </div>` : '';
+
   return `<div class="tcard ${dirCls}" style="margin-bottom:var(--s-3);border-radius:var(--r-lg)" onclick="toggleEz(this,event)">
-    <div class="tc-head" style="padding:var(--s-4)"><div style="display:flex;flex-direction:column;gap:4px"><span class="tc-sym" style="font-size:var(--t-2xl)">${r.ticker}</span><span class="mute mono" style="font-size:var(--t-xs)">${r.displayDate||r.analysedAt}${r.price?' · Last '+fmtP(r.price):''}</span></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="tc-dir ${isLong?'long':'short'}">${isLong?'▲ LONG':'▼ SHORT'}</span><span class="mono sec" style="font-size:var(--t-sm);font-weight:600">${r.conviction}</span></div></div>
-    <div class="tc-row" style="padding:0 var(--s-4) var(--s-3)"><div class="tc-cell"><div class="lbl">Entry</div><div class="val">${entry}</div></div><div class="tc-cell"><div class="lbl">Stop</div><div class="val stop">${stop}</div></div><div class="tc-cell"><div class="lbl">Target</div><div class="val tgt">${tgt}</div></div></div>
-    <div style="padding:0 var(--s-4) var(--s-3)"><div style="height:8px;border-radius:var(--r-full);overflow:hidden;display:flex;background:var(--c-border)"><div style="width:${bPct}%;background:var(--c-long)"></div><div style="width:${nPct}%;background:var(--c-border-emphasis)"></div><div style="width:${rPct}%;background:var(--c-short)"></div></div><div style="display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:9px;margin-top:4px"><span class="long">${bulls} BULL</span><span class="mute">${neuts+cauts} NEUT</span><span class="short">${bears} BEAR</span></div></div>
-    ${r.earnings?`<div style="padding:0 var(--s-4) var(--s-3)"><span class="badge b-warn">⚠ ${r.earnings}</span></div>`:''}
+    <div class="tc-head" style="padding:var(--s-4)">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span class="tc-sym" style="font-size:var(--t-2xl)">${r.ticker}</span>
+        <span class="mute mono" style="font-size:var(--t-xs)">${r.displayDate || r.analysedAt}${r.price ? ' · Last ' + fmtP(r.price) : ''}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="tc-dir ${isLong?'long':isShort?'short':''}">${isLong?'▲ LONG':isShort?'▼ SHORT':'— NEUTRAL'}</span>
+        <span class="mono sec" style="font-size:var(--t-sm);font-weight:600">${r.conviction}</span>
+      </div>
+    </div>
+    ${recHtml}
+    <div class="tc-row" style="padding:${recHtml?'var(--s-3)':'0'} var(--s-4) var(--s-3)">
+      <div class="tc-cell"><div class="lbl">Entry</div><div class="val">${entry}</div></div>
+      <div class="tc-cell"><div class="lbl">Stop</div><div class="val stop">${stop}</div></div>
+      <div class="tc-cell"><div class="lbl">Target</div><div class="val tgt">${tgt}</div></div>
+    </div>
+    <div style="padding:0 var(--s-4) var(--s-3)">
+      <div style="height:8px;border-radius:var(--r-full);overflow:hidden;display:flex;background:var(--c-border)">
+        <div style="width:${bPct}%;background:var(--c-long)"></div>
+        <div style="width:${nPct}%;background:var(--c-border-emphasis)"></div>
+        <div style="width:${rPct}%;background:var(--c-short)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:9px;margin-top:4px">
+        <span class="long">${bulls} BULL</span>
+        <span class="mute">${neuts+cauts} NEUT</span>
+        <span class="short">${bears} BEAR</span>
+      </div>
+    </div>
+    ${r.earnings ? `<div style="padding:0 var(--s-4) var(--s-3)"><span class="badge b-warn">⚠ ${esc(r.earnings)}</span></div>` : ''}
+    
     <div class="ez-expand" style="max-height:0;overflow:hidden;transition:max-height var(--dur-slow) var(--ease)">
+      ${macroHtml}
+      ${tfHtml}
+      ${horizonsHtml}
+      ${tradeHtml}
+      ${premortemHtml}
       <div style="padding:var(--s-3) var(--s-4);border-top:1px solid var(--c-border);display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4)">
         <div><div class="card-title" style="margin-bottom:var(--s-2)">17-Signal Radar</div>${radar}</div>
-        <div><div class="card-title" style="margin-bottom:var(--s-2)">Thesis</div><div style="font-size:var(--t-sm);line-height:1.55;color:var(--c-text-secondary)">${r.biasNote||''}</div></div>
+        <div><div class="card-title" style="margin-bottom:var(--s-2)">Thesis</div><div style="font-size:var(--t-sm);line-height:1.55;color:var(--c-text-secondary)">${esc(r.biasNote || '')}</div></div>
       </div>
-      <div style="padding:0 var(--s-4) var(--s-4)"><div class="tbl-wrap" style="margin:0"><table class="ez-sig-tbl"><thead><tr><th>Signal</th><th>Score</th><th>Detail</th></tr></thead><tbody>${sigRows||'<tr><td colspan="3" class="mute">No signals</td></tr>'}</tbody></table></div></div>
+      <div style="padding:0 var(--s-4) var(--s-4)">
+        <div class="tbl-wrap" style="margin:0">
+          <table class="ez-sig-tbl">
+            <thead><tr><th>Signal</th><th>Score</th><th>Detail</th></tr></thead>
+            <tbody>${sigRows || '<tr><td colspan="3" class="mute">No signals</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>`;
 }
+
+function renderMacro(m){
+  if(!m) return '';
+  const items = [
+    m.spx    ? {l:'SPX',    v:m.spx} : null,
+    m.vix    ? {l:'VIX',    v:m.vix} : null,
+    m.dxy    ? {l:'DXY',    v:m.dxy} : null,
+    m.sector ? {l:'Sector', v:m.sector} : null,
+    m.btcDom ? {l:'BTC.D',  v:m.btcDom} : null
+  ].filter(Boolean);
+  const events = (m.eventsInWindow || []).map(e => `<span class="badge b-warn" style="margin-right:4px">${esc(e)}</span>`).join('');
+  return `<div style="padding:var(--s-3) var(--s-4);border-top:1px solid var(--c-border);background:rgba(59,130,246,.02)">
+    <div class="card-title" style="margin-bottom:var(--s-2)">Macro Context</div>
+    <div style="display:flex;gap:var(--s-3);flex-wrap:wrap;font-family:var(--f-mono);font-size:var(--t-sm)">
+      ${items.map(i => `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">${i.l}</span> <span style="color:var(--c-text);font-weight:500">${esc(i.v)}</span></div>`).join('')}
+    </div>
+    ${events ? `<div style="margin-top:var(--s-2)">${events}</div>` : ''}
+  </div>`;
+}
+
+function renderTimeframes(tfs, verdict){
+  if(!tfs) return '';
+  const order = [['weekly','Weekly'],['daily','Daily'],['h4','4-Hour'],['h1','1-Hour']];
+  const verdictBadge = verdict ? {
+    'aligned':         '<span class="badge b-bull">ALIGNED</span>',
+    'mostly_aligned':  '<span class="badge b-bull">MOSTLY ALIGNED</span>',
+    'mixed':           '<span class="badge b-warn">MIXED</span>',
+    'conflicted':      '<span class="badge b-bear">CONFLICTED</span>'
+  }[verdict] || '' : '';
+  const rows = order.map(([k, lbl]) => {
+    const tf = tfs[k];
+    if(!tf) return '';
+    const trendCls = tf.trend === 'uptrend' ? 'long' : tf.trend === 'downtrend' ? 'short' : 'sec';
+    return `<tr>
+      <td style="font-family:var(--f-display);font-weight:600;color:var(--c-accent-hi);font-size:var(--t-sm)">${lbl}</td>
+      <td><span class="ss ${tf.trend === 'uptrend' ? 'ss-bull' : tf.trend === 'downtrend' ? 'ss-bear' : 'ss-neut'}">${(tf.trend||'').toUpperCase()}</span></td>
+      <td class="mono sec" style="font-size:var(--t-xs)">${esc(tf.emaStack || '—')}</td>
+      <td class="mono ${trendCls}" style="font-size:var(--t-xs)">RSI ${fmt(tf.rsi, 1)}</td>
+      <td class="mono sec" style="font-size:var(--t-xs)">${esc(tf.pattern || '—')}</td>
+      <td class="ez-sig-detail" style="font-size:var(--t-xs)">${esc(tf.note || '')}</td>
+    </tr>`;
+  }).join('');
+  return `<div style="padding:var(--s-3) var(--s-4);border-top:1px solid var(--c-border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s-2)">
+      <div class="card-title">Timeframe Ladder</div>
+      ${verdictBadge}
+    </div>
+    <div class="tbl-wrap" style="margin:0">
+      <table class="ez-sig-tbl">
+        <thead><tr><th>TF</th><th>Trend</th><th>EMA Stack</th><th>RSI</th><th>Pattern</th><th>Note</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderHorizon(title, h, accentColor){
+  if(!h) return '';
+  const conf = h.confidence || '';
+  const confCls = /high|moderate/.test(conf) && !/low/.test(conf) ? 'long' : /low/.test(conf) ? 'sec' : 'warn';
+
+  let body = '';
+  if(h.bull || h.bear || h.base){
+    body = `
+      ${h.bull ? `<div style="margin-bottom:6px"><span class="long" style="font-weight:600;font-size:var(--t-xs)">BULL</span> <span style="font-size:var(--t-xs);color:var(--c-text-secondary)">${esc(h.bull)}</span></div>` : ''}
+      ${h.bear ? `<div style="margin-bottom:6px"><span class="short" style="font-weight:600;font-size:var(--t-xs)">BEAR</span> <span style="font-size:var(--t-xs);color:var(--c-text-secondary)">${esc(h.bear)}</span></div>` : ''}
+      ${h.base ? `<div style="margin-bottom:6px"><span class="warn" style="font-weight:600;font-size:var(--t-xs)">BASE</span> <span style="font-size:var(--t-xs);color:var(--c-text-secondary)">${esc(h.base)}</span></div>` : ''}
+      ${h.volatility ? `<div class="mute mono" style="font-size:9px;margin-top:6px">Vol: ${esc(h.volatility)}</div>` : ''}
+    `;
+  } else if(h.bullClose || h.bearClose || h.insideWeek){
+    body = `
+      ${h.bullClose ? `<div style="margin-bottom:6px"><span class="long" style="font-weight:600;font-size:var(--t-xs)">BULL</span> <span style="font-size:var(--t-xs);color:var(--c-text-secondary)">${esc(h.bullClose)}</span></div>` : ''}
+      ${h.bearClose ? `<div style="margin-bottom:6px"><span class="short" style="font-weight:600;font-size:var(--t-xs)">BEAR</span> <span style="font-size:var(--t-xs);color:var(--c-text-secondary)">${esc(h.bearClose)}</span></div>` : ''}
+      ${h.insideWeek ? `<div style="margin-bottom:6px"><span class="warn" style="font-weight:600;font-size:var(--t-xs)">INSIDE</span> <span style="font-size:var(--t-xs);color:var(--c-text-secondary)">${esc(h.insideWeek)}</span></div>` : ''}
+      ${(h.events && h.events.length) ? `<div class="mute mono" style="font-size:9px;margin-top:6px">${h.events.map(esc).join(' · ')}</div>` : ''}
+    `;
+  } else if(h.primaryTarget){
+    body = `
+      <div style="margin-bottom:6px;display:flex;justify-content:space-between"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">T1</span><span class="long mono" style="font-size:var(--t-sm);font-weight:600">${fmtP(h.primaryTarget.price)} (${fmtSigned(h.primaryTarget.pct)}%)</span></div>
+      ${h.secondaryTarget ? `<div style="margin-bottom:6px;display:flex;justify-content:space-between"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">T2</span><span class="long mono" style="font-size:var(--t-sm);font-weight:600">${fmtP(h.secondaryTarget.price)} (${fmtSigned(h.secondaryTarget.pct)}%)</span></div>` : ''}
+      ${h.invalidation ? `<div style="margin-bottom:6px;display:flex;justify-content:space-between"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Inv</span><span class="short mono" style="font-size:var(--t-sm);font-weight:600">${fmtP(h.invalidation.price)}</span></div>` : ''}
+      ${(h.checkpoints && h.checkpoints.length) ? `<div class="mute mono" style="font-size:9px;margin-top:6px;line-height:1.5">${h.checkpoints.map(esc).join('<br>')}</div>` : ''}
+    `;
+  } else if(h.regime){
+    const alignBadge = h.swingAlignment === 'with_regime' ? '<span class="badge b-bull">WITH REGIME</span>' : h.swingAlignment === 'counter_regime' ? '<span class="badge b-bear">COUNTER</span>' : '<span class="badge b-neut">NEUTRAL</span>';
+    body = `
+      <div style="margin-bottom:6px"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Regime</span> <span style="font-size:var(--t-sm);color:var(--c-text);font-weight:500">${esc((h.regime||'').replace(/_/g,' '))}</span></div>
+      <div style="margin-bottom:6px">${alignBadge}</div>
+      ${h.macroThesis ? `<div class="ez-sig-detail" style="font-size:var(--t-xs);line-height:1.5">${esc(h.macroThesis)}</div>` : ''}
+      ${h.sizingImplication ? `<div class="mute mono" style="font-size:9px;margin-top:6px">Size: ${esc(h.sizingImplication)}</div>` : ''}
+    `;
+  }
+
+  return `<div style="background:var(--c-surface-2);border:1px solid var(--c-border);border-left:3px solid ${accentColor};border-radius:var(--r-md);padding:var(--s-3)">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--s-2);gap:6px">
+      <div class="display" style="font-size:var(--t-sm);font-weight:600;color:var(--c-text)">${title}</div>
+      <div class="mono mute" style="font-size:9px">${esc(h.window || '')}</div>
+    </div>
+    ${body}
+    <div class="mono ${confCls}" style="font-size:9px;margin-top:8px;padding-top:6px;border-top:1px dashed var(--c-border);letter-spacing:.05em;text-transform:uppercase">conf: ${esc(conf)}</div>
+  </div>`;
+}
+
+function renderTradePlan(p){
+  if(!p) return '';
+  const T = p.targets || {};
+  return `<div style="padding:var(--s-3) var(--s-4);border-top:1px solid var(--c-border);background:rgba(16,185,129,.02)">
+    <div class="card-title" style="margin-bottom:var(--s-3)">Trade Plan</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s-3);font-size:var(--t-sm)">
+      ${p.entryZone ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Entry Zone</span><div class="mono" style="color:var(--c-text);font-weight:500">${fmtP(p.entryZone.low)}–${fmtP(p.entryZone.high)}</div></div>` : ''}
+      ${p.trigger ? `<div style="grid-column:span 2"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Trigger</span><div class="mono" style="color:var(--c-text);font-weight:500">${esc(p.trigger)}</div></div>` : ''}
+      ${p.stopLoss ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Stop</span><div class="mono short" style="font-weight:500">${fmtP(p.stopLoss.price)} (${fmt(p.stopLoss.distancePct,2)}%)</div></div>` : ''}
+      ${p.positionSize ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Sizing</span><div class="mono" style="color:var(--c-text);font-weight:500">${fmt(p.positionSize.accountRiskPct,1)}% risk · ${p.positionSize.sharesPer100k} sh/$100k</div></div>` : ''}
+      ${p.expectedHolding ? `<div><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">Hold</span><div class="mono" style="color:var(--c-text);font-weight:500">${esc(p.expectedHolding)}</div></div>` : ''}
+    </div>
+    <div style="margin-top:var(--s-3);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-2)">
+      ${T.T1 ? `<div style="background:var(--c-surface-3);border-radius:var(--r-sm);padding:8px"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">T1 · ${T.T1.r}R · trim ${T.T1.takePct}%</span><div class="mono long" style="font-weight:600">${fmtP(T.T1.price)}</div><div class="ez-sig-detail" style="font-size:9px;margin-top:2px">${esc(T.T1.basis||'')}</div></div>` : ''}
+      ${T.T2 ? `<div style="background:var(--c-surface-3);border-radius:var(--r-sm);padding:8px"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">T2 · ${T.T2.r}R · trim ${T.T2.takePct}%</span><div class="mono long" style="font-weight:600">${fmtP(T.T2.price)}</div><div class="ez-sig-detail" style="font-size:9px;margin-top:2px">${esc(T.T2.basis||'')}</div></div>` : ''}
+      ${T.T3 ? `<div style="background:var(--c-surface-3);border-radius:var(--r-sm);padding:8px"><span class="display mute" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase">T3 · ${T.T3.r}R · trim ${T.T3.takePct}%</span><div class="mono long" style="font-weight:600">${fmtP(T.T3.price)}</div><div class="ez-sig-detail" style="font-size:9px;margin-top:2px">${esc(T.T3.basis||'')}</div></div>` : ''}
+    </div>
+    ${p.trailMethod ? `<div style="margin-top:var(--s-2);font-family:var(--f-mono);font-size:var(--t-xs);color:var(--c-text-secondary)"><span class="mute">Trail:</span> ${esc(p.trailMethod)}</div>` : ''}
+    ${p.timeStop ? `<div style="font-family:var(--f-mono);font-size:var(--t-xs);color:var(--c-text-secondary)"><span class="mute">Time stop:</span> ${esc(p.timeStop)}</div>` : ''}
+  </div>`;
+}
+
 function toggleEz(card,e){
   if(e&&e.target.closest('a,button,input'))return;
   const x=card.querySelector('.ez-expand');if(!x)return;
