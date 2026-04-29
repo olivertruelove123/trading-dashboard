@@ -588,6 +588,124 @@ svg.chart{width:100%;display:block;overflow:visible}
 /* EZPZ_INDIVIDUAL_START */
 const EZPZ_INDIVIDUAL = [
   {
+    ticker:"ONDS",
+    analysedAt:"2026-04-29",
+    displayDate:"Apr 29, 2026",
+    price:9.48,
+    direction:"LONG",
+    verdict:"MIXED",
+    conviction:"7/20 Bullish (Watchlist)",
+    bullish:7,
+    bearish:3,
+    neutral:9,
+    caution:1,
+    entry:9.65,
+    stop:8.00,
+    target:11.50,
+    earnings:null,
+    recommendation:"LONG — Watchlist tier. Driven by Market Trend Signal = Buy with all S/M/L timeframes Bullish (EMA50 $10.10 / EMA200 $8.12), RS Percentile Rank 100% (12m +1295%, 6m +54%), and structural call-OI dominance across May–Jun (PCR vol 0.05–0.29) plus today's heavy bullish call-block flow (5/22 $10C $432K, 6/18 $10C $580K). Trigger: do NOT enter at market — wait for daily close above $10.00 (EMA50 reclaim) with volume; entry zone $9.50–9.80 on confirmed reclaim. Stop $8.00 (below EMA200 + recent low cluster). T1 $10.50 (EMA50 reclaim), T2 $11.50 (Apr 22 high), T3 $13.00 (squeeze extension). Biggest risk: today's –9.57% drop on a 2.3M share resale filing is dilutive — if synthetic short positions (468% of float, EXTREME signal sustained 7 months) are debenture/PIPE hedges, they will NEVER cover and can pile on. Bearish 4-of-5d net premium streak says the dump is not done.",
+    biasNote:"ONDS just shed 9.57% today on a 2.3M-share resale filing, capping a 5-day decline from $11.06 (Apr 22) to $9.48. The structural picture is mixed-with-bullish-tilt: 12m return is +1295% (RS Percentile 100%), Market Trend system rates it BUY with all 3 timeframes Bullish, and call OI is 2× put OI ($31.6M vs $16.2M, PCR OI 0.51) with heavy call-block buying continuing today (5/22 $10C, 6/18 $10C, 2028 $12C totaling >$1M premium). IVx skew is +91.48% bullish (calls priced massively higher than puts). But near-term flow is bearish: net premium today –$3.7M, 4 of last 5 days net premium negative (–$3.05M / –$2.83M / +$1.70M / –$291K / –$3.72M), and Money Sentiment is 62.25% bearish vs 56.52% 30d-avg (i.e. selling pressure intensifying). The single most important context is the EXTREME synthetic short signal: 2.06B synthetic shorts = 433% of float, sustained for 7+ months, total short position 468% of float, $21.56B synthetic value, FTDs 40.42M. That's classic squeeze fuel — but only if shorts are speculators (not debenture hedges). Cost-to-borrow is only 1%, which suggests easy supply remains and shorts have no urgency. Squeeze Score not ranked in EZPZ top-79; ShortEx not in top-100 — meaning the gamma trigger is missing. Conclusion: long-term setup, near-term bearish flow — wait for $10 reclaim before entering.",
+    composites:{
+      squeezeScore:{value:null,rank:"not ranked",signal:"CAUTION",detail:"Not in Gamma Squeeze top-79 — gamma trigger missing despite 468% short position"},
+      shortScore:{value:60,decile:"6th (mid)",signal:"NEUTRAL",detail:"Short Score 60%, Util 79%, CTB 1% (low — supply still ample)"},
+      marketTrend:{label:"Buy",alignment:"S/M/L all Bullish",signal:"BULLISH",detail:"Strong aligned uptrend; EMA50 $10.10 / EMA200 $8.12"}
+    },
+    macro:{
+      dix:"unread (small-cap microstructure-driven)",
+      sector:"Technology / Drone / Edge-AI infrastructure (speculative theme)",
+      sectorBalance:"unread",
+      eventsInWindow:["No scheduled ONDS earnings","FOMC ~May 7","CPI ~May 13"]
+    },
+    horizons:{
+      nextSession:{
+        window:"Apr 29 close → Apr 30 close",
+        bull:"Reclaims $9.50, dip-buyers absorb resale supply, closes >$9.80. ~30%.",
+        bear:"Opens flat, fails $9.50, flushes to $9.00 → close <$9.20. ~45%.",
+        base:"Chops $9.20–$9.70, no resolution as resale overhang weighs. ~25%.",
+        flipLevel:"$9.50 — close above stabilizes, below = continuation",
+        rangeToday:"$8.81 – $10.15 (DEM ±$0.67 from $9.48)",
+        gammaRegime:"likely negative (microcap volatility, no published GEX)",
+        events:["No ONDS-specific catalyst","Resale supply pressure"],
+        confidence:"low"
+      },
+      endOfWeek:{
+        window:"Apr 29 → Fri May 1",
+        bullClose:"Above $10.20 (Apr 27 close) → reverses 5d slide, reclaims EMA50, sets up squeeze prep. ~30%.",
+        bearClose:"Below $9.00 → breaks 5d low, dilution overhang confirmed, retest $8 zone. ~40%.",
+        insideWeek:"$9.00 – $10.50 chop as market digests resale. ~30%.",
+        flipLevel:"$10.00 daily close — EMA50 reclaim",
+        targetVEM:"~$10.98 upper / ~$7.98 lower (5DTE VEM scaled)",
+        events:["May 1 monthly OpEx","ISM Mfg ~May 1","NFP ~May 2"],
+        confidence:"low-moderate"
+      },
+      endOfMonth:{
+        window:"Apr 29 → ~May 29",
+        primaryTarget:{price:11.50,pct:21.3,basis:"Apr 22 high + heaviest 5/22 & 6/18 call-block strikes ($10 strike paid)"},
+        secondaryTarget:{price:13.00,pct:37.1,basis:"Squeeze extension if synthetic shorts cover; aligns with 2028 $12C bullish positioning"},
+        invalidation:{price:7.00,basis:"Daily close below EMA200 ($8.12) and break of $7 floor kills monthly thesis — confirms shorts are debenture hedges piling on"},
+        checkpoints:[
+          "Week 1 (Apr 30–May 2): Hold $9 base; reclaim $10 = thesis on track",
+          "Week 2 (May 5–9): Clear $10.50 + ride above EMA50; FOMC May 7 risk",
+          "Week 3-4 (May 12–23): Test $11.50–$13 if squeeze fuel ignites; otherwise back to $9"
+        ],
+        binaryEvents:["FOMC ~May 7","CPI ~May 13","No ONDS earnings in window"],
+        confidence:"moderate-low"
+      },
+      quarterly:{
+        window:"Apr 29 → ~Jul-Aug 2026",
+        regime:"secular_uptrend (in mean-reversion phase)",
+        macroThesis:"ONDS is a speculative drone/edge-AI/private-network 5G play that 13×'d in 12 months on retail momentum + synthetic short build. The structural setup (extreme naked short, call-heavy LEAP positioning, top RS percentile) is squeeze fuel — but the trigger is missing without a Gamma Squeeze ranking and without rising CTB. Multi-quarter direction depends on whether the 2.06B synthetic short pile resolves via covering (parabolic squeeze) or never resolves (debenture/PIPE hedges; the stock grinds lower as the float overhangs).",
+        swingAlignment:"with_regime",
+        keyLevels:{majorSupport:"$7.00–$8.12 (EMA200 + recent base)",majorResistance:"$13–$15 (Apr highs + 2028 LEAP strike zone)",ivRank1YPosition:"43.20% (mid — room to expand)"},
+        sizingImplication:"decrease (use Watchlist tier until $10 reclaim)",
+        confidence:"directional_only"
+      }
+    },
+    tradePlan:{
+      direction:"long",
+      entryZone:{low:9.50,high:9.80},
+      trigger:"Daily close above $10.00 (EMA50) with above-30D-avg volume; OR strong reclaim of $9.80 on 4H with bullish flip-back",
+      invalidation:{price:8.00,basis:"Daily close below EMA200 + break of $8 swing low — synthetic shorts are debenture hedges, thesis dead"},
+      stopLoss:{price:8.00,distancePct:17.1,distanceR:1},
+      positionSize:{accountRiskPct:0.5,RValue:"~$1.65/share",sharesPer100k:"~300 (small/Watchlist tier)"},
+      targets:{
+        T1:{price:10.50,r:0.5,takePct:33,basis:"EMA50 reclaim + minor resistance"},
+        T2:{price:11.50,r:1.1,takePct:33,basis:"Apr 22 high + heaviest call-block strikes"},
+        T3:{price:13.00,r:2.0,takePct:34,basis:"Squeeze extension + 2027/2028 bullish LEAP zone"}
+      },
+      trailMethod:"Lift stop to entry after T1; trail under each prior daily swing low after T2",
+      timeStop:"Exit if no progress above $10 by close Fri May 8 (7 trading days)",
+      expectedHolding:"5-10 trading days"
+    },
+    preMortem:{
+      killsOvernight:"Another resale/dilution filing or Reg SHO listing breaks the $8 floor and triggers trend acceleration south. ATM offering / convertible note announcement = instant –20%.",
+      wrongAbout:"Assuming the synthetic short position eventually covers. If shorts are actual hedges of PIPE/debenture financings (very common at this SI level + low CTB), they will NEVER cover — they will pile on more as more shares are issued. The 12-month +1295% return may be a top, not a base.",
+      correlationCheck:"If already long PLUG / SLS / IBRX or other small-cap squeeze names, adding ONDS concentrates retail-frenzy / naked-short-squeeze beta. Half-size or skip if book already loaded."
+    },
+    signals:[
+      {signal:"Squeeze Score (composite)",source:"Tab M",score:"CAUTION",detail:"Not ranked in Gamma Squeeze top-79 — gamma trigger missing despite 468% short position"},
+      {signal:"Short Score (composite ShortEx)",source:"Tab N",score:"NEUTRAL",detail:"Short Score 60%, not in ShortEx top-100; CTB 1% (low — no urgency)"},
+      {signal:"Market Trend Signal (composite)",source:"Tab P",score:"BULLISH",detail:"BUY, Strong aligned uptrend — S/M/L all Bullish; EMA50 $10.10 / EMA200 $8.12"},
+      {signal:"Net Premium Flow (PCR OI)",source:"Tab A",score:"BULLISH",detail:"PCR OI 0.51 (call-heavy: 31.6M call OI vs 16.2M put OI)"},
+      {signal:"PCR Near-term Volume",source:"Tab B",score:"BULLISH",detail:"Total Vol PCR 0.20 — extremely call-heavy across all near-term"},
+      {signal:"IVx Skew",source:"Tab A",score:"BULLISH",detail:"+91.48% — Call IVx 148.67% vs Put IVx 57.19% (calls massively pricier)"},
+      {signal:"PCR by Expiry (swing window)",source:"Tab B",score:"BULLISH",detail:"5/8 0.23, 5/15 0.05, 5/22 0.08, 6/18 0.29 — all call-dominant"},
+      {signal:"GEX Environment",source:"Tab C",score:"NEUTRAL",detail:"ONDS not in EZPZ GEX universe; Tab A Gamma Imbalance Wtd 82.31% (no flip strike data)"},
+      {signal:"Price vs Call/Put Wall",source:"Tab C",score:"NEUTRAL",detail:"No published wall data for ONDS"},
+      {signal:"Money Sentiment Net $",source:"Tab F",score:"BEARISH",detail:"Bearish $9.5M / Bullish $5.7M — 62.25% bearish (>30% threshold)"},
+      {signal:"Money Sentiment vs 30d",source:"Tab F",score:"BEARISH",detail:"Today 62.25% bear vs 30d-avg 56.52% bear — selling pressure intensifying same direction"},
+      {signal:"OI Net Change",source:"Tab H",score:"BULLISH",detail:"Call/Put OI ratio 1.95 (>1.2 threshold) — call-dominant"},
+      {signal:"OI Concentration",source:"Tab H",score:"BULLISH",detail:"Top expiries 6/18 (409K), 5/1 (204K), 5/15 (192K) — all call-dominant in swing window"},
+      {signal:"Dark Pool Imbalance",source:"Tab I",score:"NEUTRAL",detail:"No top-level prints; Tab A: DP Vol 15.4M (29.41% of total) — meaningful but no imbalance number"},
+      {signal:"Dark Pool Levels",source:"Tab I",score:"NEUTRAL",detail:"No clustered DP levels published for ONDS"},
+      {signal:"Alert Feed Reasons (4h)",source:"Tab J",score:"NEUTRAL",detail:"Not pulled (small-cap)"},
+      {signal:"DP Net Premium Today",source:"Tab K/L",score:"NEUTRAL",detail:"Not in top — Tab A net premium today -$3.7M (below ±$10M threshold)"},
+      {signal:"DP Net Premium 5d Streak",source:"Tab Q",score:"BEARISH",detail:"4 of last 5 days NEGATIVE: -$3.05M, -$2.83M, +$1.70M, -$291K, -$3.72M"},
+      {signal:"RS Percentile (12m + 3m)",source:"Tab O",score:"NEUTRAL",detail:"12m +1295% (top), 3m -14.59% (lagging) — split, not both ≥80; lean bullish on 12m strength"},
+      {signal:"GEX Flip vs Spot",source:"Tab R",score:"NEUTRAL",detail:"No published GEX/DEX realtime for ONDS"}
+    ]
+  },
+  {
     ticker:"ORCL",
     analysedAt:"2026-04-28",
     displayDate:"Apr 28, 2026",
